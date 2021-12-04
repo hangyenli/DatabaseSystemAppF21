@@ -1,5 +1,5 @@
-DROP SCHEMA IF EXISTS project;
-CREATE SCHEMA project;
+DROP DATABASE IF EXISTS app_database;
+CREATE DATABASE app_database;
 
 -- Application Data Schema
 
