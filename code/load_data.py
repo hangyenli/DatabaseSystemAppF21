@@ -43,15 +43,10 @@ def main():
     mongo_crime.drop()
 
     filename = "data/Hate_Crimes_by_County_and_Bias_Type__Beginning_2010.csv"
-    fields = []
-    rows = []
     with open(filename, 'r') as csvfile:
         csvreader = csv.reader(csvfile)
         fields = next(csvreader)
         for row in csvreader:
-            rows.append(row)
-
-        for row in rows:
             # parsing each column of a row
             counter = 0
             d = {}
