@@ -1,0 +1,34 @@
+
+Schema add constraints
+
+
+Load 2 datasets
+    DB class
+        insert
+        insertmany
+        update
+        delete
+        query
+
+    load crime
+    mongdo
+
+    app code
+        load 511 event
+            create 4 tables for each row
+            insertmany (1000)
+        load crime
+            mongdo
+
+
+
+
+
+
+Run queries
+Queries
+User data tracking
+Interface
+
+Crime -> MangoDB
+Other 2 -> SQL
