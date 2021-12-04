@@ -13,6 +13,7 @@ CREATE TABLE userNote (
     userId VARCHAR(31),
     note   VARCHAR(255),
     FOREIGN KEY (userId) REFERENCES users (id)
+                ON DELETE CASCADE
 );
 
 CREATE TABLE userQuery (
@@ -20,6 +21,7 @@ CREATE TABLE userQuery (
     userId VARCHAR(31),
     query  VARCHAR(255),
     FOREIGN KEY (userId) REFERENCES users (id)
+                ON DELETE CASCADE
 );
 
 CREATE TABLE userAccessedData (
@@ -28,6 +30,7 @@ CREATE TABLE userAccessedData (
     accessedTable  VARCHAR(255),
     accessedColumn VARCHAR(255),
     FOREIGN KEY (userId) REFERENCES users (id)
+                ON DELETE CASCADE
 );
 
 -- Dataset Schema
