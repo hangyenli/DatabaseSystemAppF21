@@ -57,12 +57,14 @@ CREATE TABLE event (
     eventLocationId VARCHAR(36),
     eventFacilityId VARCHAR(36),
     createTime      timestamp CHECK (createTime > '2000-01-01'),
-    closeTime       timestamp CHECK (createTime > '2000-01-01'),
+    closeTime       timestamp,
     description     VARCHAR(255),
     FOREIGN KEY (eventLocationId) REFERENCES eventLocation (id),
     FOREIGN KEY (eventFacilityId) REFERENCES eventFacility (id)
 );
 
+-- Replaced by non-relational schema
+/*
 CREATE TABLE hateCrime (
     county                              VARCHAR(127),
     year                                INT,
@@ -110,3 +112,4 @@ CREATE TABLE hateCrime (
     totalOffenders                      INT,
     PRIMARY KEY (county, year, type)
 );
+*/

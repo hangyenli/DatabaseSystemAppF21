@@ -1,8 +1,42 @@
+import os
+import psycopg2
+import pandas as pd
+import uuid
 import csv
 from pymongo import MongoClient
 
-
 def main():
+
+    # Load dataset 1
+    connection_string = "host='localhost' dbname='app_database' user='app_admin' password='admin_password'"
+    conn = psycopg2.connect(connection_string)
+    cursor = conn.cursor()
+
+    df = pd.read_csv("data/511_NY_Events__Beginning_2010.csv", \
+                     delimiter=',', na_filter=False)
+    for row in df.values:
+        # eventLocation
+        location_id = str(uuid.uuid4())
+        cursor.execute("INSERT INTO eventLocation VALUES " +
+                       str((location_id, row[4], row[5], row[6], row[11], row[12])))
+        # eventFacility
+        cursor.execute("SELECT id FROM eventFacility WHERE type='%s' AND facility='%s' AND direction='%s'"
+                       % (row[0], row[2], row[3]))
+        record = cursor.fetchall()
+        facility_id = ""
+        if len(record) == 0:
+            facility_id = str(uuid.uuid4())
+            cursor.execute("INSERT INTO eventFacility VALUES " +
+                           str((facility_id, row[0], row[2], row[3])))
+        else:
+            facility_id = record[0][0]
+        # event
+        cursor.execute("INSERT INTO event VALUES " + 
+                       str((str(uuid.uuid4()), row[1], location_id, facility_id, row[7], row[8], row[9])))
+        conn.commit()
+
+
+    # Load dataset 2 (Non-relational)
     client = MongoClient("mongodb://localhost:27017")
     mongo_db = client["app_database"]
     mongo_crime = mongo_db["hateCrime"]
