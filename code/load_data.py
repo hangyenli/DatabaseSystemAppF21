@@ -1,24 +1,31 @@
-import os
-import psycopg2
-import pandas as pd
+import csv
+from pymongo import MongoClient
+
 
 def main():
-    connection_string = "host='localhost' dbname='app_database' user='app_admin' password='admin_password'"
-    conn = psycopg2.connect(connection_string)
-    cursor = conn.cursor()
+    client = MongoClient("mongodb://localhost:27017")
+    mongo_db = client["app_database"]
+    mongo_crime = mongo_db["hateCrime"]
+    mongo_crime.drop()
 
-    # Load dataset 1
-    df_1 = pd.read_csv("data/511_NY_Events__Beginning_2010.csv", \
-                       delimiter=',', na_filter=False)
-        # TODO
+    filename = "data/Hate_Crimes_by_County_and_Bias_Type__Beginning_2010.csv"
+    fields = []
+    rows = []
+    with open(filename, 'r') as csvfile:
+        csvreader = csv.reader(csvfile)
+        fields = next(csvreader)
+        for row in csvreader:
+            rows.append(row)
 
-    # Load dataset 2
-    df_2 = pd.read_csv("data/Hate_Crimes_by_County_and_Bias_Type__Beginning_2010.csv", \
-                       delimiter=',', na_filter=False)
-    for row in df_2.values:
-        query = "INSERT INTO hateCrime VALUES " + str(tuple(row))
-        cursor.execute(query)
-    conn.commit()
+        for row in rows:
+            # parsing each column of a row
+            counter = 0
+            d = {}
+            for col in row:
+                d[fields[counter]] = col
+                counter += 1
+            mongo_crime.insert_one(d)
+
 
 if __name__ == '__main__':
     main()

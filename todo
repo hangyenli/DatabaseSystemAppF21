@@ -10,8 +10,8 @@ Load 2 datasets
         delete
         query
 
-    load crime
-    mongdo
+    load crime (done)
+    mongdo (done)
 
     app code
         load 511 event
