@@ -51,18 +51,18 @@ CREATE TABLE eventFacility (
     direction    VARCHAR(255)
 );
 
+
 CREATE TABLE event (
     id              VARCHAR(36) PRIMARY KEY,
-    organization    VARCHAR(255),
+    organization    VARCHAR(512),
     eventLocationId VARCHAR(36),
     eventFacilityId VARCHAR(36),
     createTime      timestamp CHECK (createTime > '2000-01-01'),
-    closeTime       timestamp,
-    description     VARCHAR(255),
-    FOREIGN KEY (eventLocationId) REFERENCES eventLocation (id),
-    FOREIGN KEY (eventFacilityId) REFERENCES eventFacility (id)
+    closeTime       timestamp default null,
+    description     VARCHAR(10000),
+    FOREIGN KEY (eventLocationId) REFERENCES eventLocation (id) on delete cascade ,
+    FOREIGN KEY (eventFacilityId) REFERENCES eventFacility (id) on delete cascade
 );
-
 -- Replaced by non-relational schema
 /*
 CREATE TABLE hateCrime (
