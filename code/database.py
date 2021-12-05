@@ -1,5 +1,6 @@
 import sys
 import psycopg2
+import uuid
 
 class Database():
 
@@ -15,3 +16,10 @@ class Database():
                 return False
             else:
                 return True
+
+    def createNote(self, userId, note):
+        with self.conn.cursor() as cursor:
+            cursor.execute("insert into userNote ('%s','%s','%s')", (str(uuid.uuid4()), userId, note))
+            self.conn.commit()
+            return cursor.fetchone()[0]
+

@@ -13,7 +13,8 @@ def answer_question(option):
     elif option == "5":
         pass
 
-def process_request(command):
+
+def process_request(command, userId):
     if command == "1":
         print("\t1. What is the average event duration in STATE?")
         print("\t2. What is the total number of each type of events in YEAR?")
@@ -23,7 +24,15 @@ def process_request(command):
         option = input("Please make a choice (1-5): ")
         answer_question(option)
 
+
     elif command == "2":
+        print("Create notes while exploring the project dataset!")
+        note = input('please enter note, hit return / enter button to finish input')
+
+        # insert
+        DB = Database()
+        DB.createNote(userId,note)
+
         pass
     elif command == "3":
         pass
@@ -54,7 +63,7 @@ def main():
         if command == "6":
             break
         else:
-            process_request(command)
+            process_request(command, userId)
 
 if __name__ == '__main__':
     main()
