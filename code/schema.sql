@@ -37,18 +37,18 @@ CREATE TABLE userAccessedData (
 
 CREATE TABLE eventLocation (
     id        VARCHAR(36) PRIMARY KEY,
-    city      VARCHAR(127),
-    county    VARCHAR(127),
+    city      VARCHAR(512),
+    county    VARCHAR(512),
     state     VARCHAR(3),
-    latitude  DECIMAL(8, 6),
-    longitude DECIMAL(8, 6)
+    latitude  DECIMAL(20, 1000),
+    longitude DECIMAL(20, 1000)
 );
 
 CREATE TABLE eventFacility (
     id           VARCHAR(36) PRIMARY KEY,
-    type         VARCHAR(255),
-    facility     VARCHAR(255),
-    direction    VARCHAR(255)
+    type         VARCHAR(1024),
+    facility     VARCHAR(1024),
+    direction    VARCHAR(1024)
 );
 
 
@@ -59,7 +59,6 @@ CREATE TABLE event (
     eventFacilityId VARCHAR(36),
     createTime      timestamp CHECK (createTime > '2000-01-01'),
     closeTime       timestamp default null,
-    description     VARCHAR(10000),
     FOREIGN KEY (eventLocationId) REFERENCES eventLocation (id) on delete cascade ,
     FOREIGN KEY (eventFacilityId) REFERENCES eventFacility (id) on delete cascade
 );
