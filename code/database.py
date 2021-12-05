@@ -28,4 +28,10 @@ class Database():
             cursor.execute("select * from userNote where userId = '%s'", (userId, ))
             return cursor.fetchall()
 
+    def addUserQuery(self, userId, query):
+        with self.conn.cursor() as cursor:
+            cursor.execute("insert into userQuery ('%s','%s','%s')", (str(uuid.uuid4()), userId, query))
+            self.conn.commit()
+            return cursor.fetchone()[0]
+
 
