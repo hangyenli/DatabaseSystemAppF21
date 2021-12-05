@@ -32,10 +32,15 @@ def process_request(command, userId):
         # insert
         DB = Database()
         DB.createNote(userId,note)
-
-        pass
     elif command == "3":
-        pass
+        DB = Database()
+        print("Here are all your saved Notes!")
+        notes = DB.fetchNote(userId)
+        counter = 1
+        for note in notes:
+            print(str(counter) + ". " + note[2])
+            counter += 1
+
     elif command == "4":
         pass
     elif command == "5":

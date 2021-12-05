@@ -23,3 +23,9 @@ class Database():
             self.conn.commit()
             return cursor.fetchone()[0]
 
+    def fetchNote(self, userId):
+        with self.conn.cursor() as cursor:
+            cursor.execute("select * from userNote where userId = '%s'", (userId, ))
+            return cursor.fetchall()
+
+
