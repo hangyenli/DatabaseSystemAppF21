@@ -7,9 +7,11 @@ class Database():
         connection_string = "host='localhost' dbname='app_database' user='app_admin' password='admin_password'"
         self.conn = psycopg2.connect(connection_string)
 
-    def test(self):
-        query = "SELECT county, year, type FROM hateCrime LIMIT 10"
+    def authUser(self, userId):
         with self.conn.cursor() as cursor:
-            cursor.execute(query)
+            cursor.execute("SELECT id FROM users WHERE id=%s", (userId, ))
             record = cursor.fetchall()
-        return record
+            if len(record) == 0:
+                return False
+            else:
+                return True

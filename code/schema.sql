@@ -1,12 +1,10 @@
-DROP DATABASE IF EXISTS app_database;
-CREATE DATABASE app_database;
-
 -- Application Data Schema
 
 CREATE TABLE users (
-    id   VARCHAR(36) PRIMARY KEY,
-    name VARCHAR(127)
+    id   VARCHAR(36) PRIMARY KEY
 );
+INSERT INTO users VALUES ('admin');
+INSERT INTO users VALUES ('tester');
 
 CREATE TABLE userNote (
     id     VARCHAR(36) PRIMARY KEY,
