@@ -64,12 +64,11 @@ def process_request(command, userId):
 
 
     elif command == "2":
-        print("Create notes while exploring the project dataset!")
+        print("Create notes while exploring the project dataset!   :")
         note = input('please enter note, hit return / enter button to finish input')
-
-        # insert
         DB = Database()
         DB.createNote(userId, note)
+
     elif command == "3":
         DB = Database()
         print("Here are all your saved Notes!")
@@ -78,6 +77,7 @@ def process_request(command, userId):
         for note in notes:
             print(str(counter) + ". " + note[2])
             counter += 1
+        print('---------------------')
 
     elif command == "4":
         pass

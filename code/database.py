@@ -20,20 +20,18 @@ class Database():
 
     def createNote(self, userId, note):
         with self.conn.cursor() as cursor:
-            cursor.execute("insert into userNote ('%s','%s','%s')", (str(uuid.uuid4()), userId, note))
+            cursor.execute("insert into userNote values (%s,%s,%s)",(str(uuid.uuid4()), userId, note))
             self.conn.commit()
-            return cursor.fetchone()[0]
 
     def fetchNote(self, userId):
         with self.conn.cursor() as cursor:
-            cursor.execute("select * from userNote where userId = '%s'", (userId,))
+            cursor.execute("select * from userNote where userId = %s", (userId,))
             return cursor.fetchall()
 
     def addUserQuery(self, userId, query):
         with self.conn.cursor() as cursor:
-            cursor.execute("insert into userQuery ('%s','%s','%s')", (str(uuid.uuid4()), userId, query))
+            cursor.execute("insert into userQuery values (%s,%s,%s)", (str(uuid.uuid4()), userId, query))
             self.conn.commit()
-            return cursor.fetchone()[0]
 
     def runQuery(self, query):
         with self.conn.cursor() as cursor:
