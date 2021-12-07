@@ -20,21 +20,34 @@ class Database():
 
     def createNote(self, userId, note):
         with self.conn.cursor() as cursor:
-            cursor.execute("insert into userNote values (%s,%s,%s)",(str(uuid.uuid4()), userId, note))
+            query = "insert into userNote values ('%s','%s','%s')" % (str(uuid.uuid4()), userId, note)
+            cursor.execute(query)
             self.conn.commit()
 
     def fetchNote(self, userId):
         with self.conn.cursor() as cursor:
-            cursor.execute("select * from userNote where userId = %s", (userId,))
+            query = "select * from userNote where userId = '%s'" % (userId,)
+            cursor.execute(query)
+            self.addUserQuery(userId, query)
             return cursor.fetchall()
+
+    def fetchQuery(self, userId):
+        with self.conn.cursor() as cursor:
+            query = "select * from userQuery where userId = '%s'" % (userId,)
+            cursor.execute(query)
+            self.addUserQuery(userId, query)
+            return cursor.fetchall()
+
 
     def addUserQuery(self, userId, query):
         with self.conn.cursor() as cursor:
             cursor.execute("insert into userQuery values (%s,%s,%s)", (str(uuid.uuid4()), userId, query))
             self.conn.commit()
 
-    def runQuery(self, query):
+    def runQuery(self, userId, query):
         with self.conn.cursor() as cursor:
             cursor.execute(query)
+            self.addUserQuery(userId, query)
             return cursor.fetchall()
+
 

@@ -13,10 +13,17 @@ def print_tuple_2(cols, rows):
     col = "".join(col for col in cols)
     print(col)
     for row in rows:
-        print('{}\t{}'.format(row[0][:20],row[1]))
+        print('{}\t{}'.format(row[0][:20], row[1]))
+
+def print_tuple(tuples):
+    for t in tuples:
+        s = ""
+        for col in t:
+            s += str(col) + '\t'
+        print(s)
 
 
-def answer_question(option):
+def answer_question(userId, option):
     db = Database()
     if option == "1":
         state = input('Please enter the state you want to look at, such as "NY" "NJ" "CT"  :')
@@ -27,7 +34,7 @@ def answer_question(option):
                 "where closetime!= '01/01/2030 01:00:00 PM' " \
                 "and (type = 'incident' or type='accident') and state = '" + state + "' " \
                                                                                      "group by state;"
-        result = db.runQuery(query)
+        result = db.runQuery(userId, query)
         print("The average length of the event in " + state + " is around " + str(result[0][1]) + 'day(s)')
     elif option == "2":
         # What is the total number of each type of events in YEAR?
@@ -36,7 +43,7 @@ def answer_question(option):
                 "join eventfacility e on e.id = event.eventfacilityid " \
                 "group by type, extract(year from createtime) having count(*) > 1000 " \
                 "order by type, year desc, count(*) desc;"
-        result = db.runQuery(query)
+        result = db.runQuery(userId, query)
         print_tuple_3(["Event Type", "Year", "Count"], result)
     elif option == "3":
         pass
@@ -48,7 +55,7 @@ def answer_question(option):
                 "WHERE EXTRACT(year FROM createTime) = " + year + \
                 "GROUP BY organization " \
                 "order by count(*) desc limit 10;"
-        result = db.runQuery(query)
+        result = db.runQuery(userId, query)
         print_tuple_2(['Organization, Count'], result)
 
 
@@ -60,12 +67,12 @@ def process_request(command, userId):
         print("\t4. What is the ratio of construction events and hate crime incidents?")
         print("\t5. How many events are responded by each organization in YEAR?")
         option = input("Please make a choice (1-5): ")
-        answer_question(option)
+        answer_question(userId, option)
 
 
     elif command == "2":
         print("Create notes while exploring the project dataset!   :")
-        note = input('please enter note, hit return / enter button to finish input')
+        note = input('please enter note, hit return / enter button to finish input  :')
         DB = Database()
         DB.createNote(userId, note)
 
@@ -80,7 +87,19 @@ def process_request(command, userId):
         print('---------------------')
 
     elif command == "4":
-        pass
+        DB = Database()
+        print("Here are all your saved Query!")
+        queries = DB.fetchQuery(userId)
+        counter = 1
+        for query in queries:
+            print(str(counter) + ". " + query[2])
+            counter += 1
+        print('---------------------')
+        number = input('To reran a query, enter the number:  ')
+        result = DB.runQuery(userId, queries[int(number)-1][2])
+        print('--------------')
+        print('Here is the result of '+ queries[int(number)-1][2])
+        print_tuple(result)
     elif command == "5":
         pass
 
