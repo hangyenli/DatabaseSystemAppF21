@@ -2,6 +2,7 @@ import sys
 import psycopg2
 import uuid
 
+
 class Database():
 
     def __init__(self):
@@ -10,7 +11,7 @@ class Database():
 
     def authUser(self, userId):
         with self.conn.cursor() as cursor:
-            cursor.execute("SELECT id FROM users WHERE id=%s", (userId, ))
+            cursor.execute("SELECT id FROM users WHERE id=%s", (userId,))
             record = cursor.fetchall()
             if len(record) == 0:
                 return False
@@ -25,7 +26,7 @@ class Database():
 
     def fetchNote(self, userId):
         with self.conn.cursor() as cursor:
-            cursor.execute("select * from userNote where userId = '%s'", (userId, ))
+            cursor.execute("select * from userNote where userId = '%s'", (userId,))
             return cursor.fetchall()
 
     def addUserQuery(self, userId, query):
@@ -34,4 +35,7 @@ class Database():
             self.conn.commit()
             return cursor.fetchone()[0]
 
-
+    def run_query(self, query):
+        with self.conn.cursor() as cursor:
+            cursor.execute(query)
+            return cursor.fetchall()
