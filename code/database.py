@@ -35,7 +35,8 @@ class Database():
             self.conn.commit()
             return cursor.fetchone()[0]
 
-    def run_query(self, query):
+    def runQuery(self, query):
         with self.conn.cursor() as cursor:
             cursor.execute(query)
             return cursor.fetchall()
+

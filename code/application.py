@@ -19,7 +19,7 @@ def print_tuple_2(cols, rows):
 def answer_question(option):
     db = Database()
     if option == "1":
-        state = input('Please enter the state you want to look at, such as "NY" "NJ" "CT"')
+        state = input('Please enter the state you want to look at, such as "NY" "NJ" "CT"  :')
         query = "select state, avg(extract(days from (closetime - createtime))) as avg_duration_day " \
                 "from event " \
                 "join eventlocation e on e.id = event.eventlocationid " \
@@ -27,7 +27,7 @@ def answer_question(option):
                 "where closetime!= '01/01/2030 01:00:00 PM' " \
                 "and (type = 'incident' or type='accident') and state = '" + state + "' " \
                                                                                      "group by state;"
-        result = db.run_query(query)
+        result = db.runQuery(query)
         print("The average length of the event in " + state + " is around " + str(result[0][1]) + 'day(s)')
     elif option == "2":
         # What is the total number of each type of events in YEAR?
@@ -36,19 +36,19 @@ def answer_question(option):
                 "join eventfacility e on e.id = event.eventfacilityid " \
                 "group by type, extract(year from createtime) having count(*) > 1000 " \
                 "order by type, year desc, count(*) desc;"
-        result = db.run_query(query)
+        result = db.runQuery(query)
         print_tuple_3(["Event Type", "Year", "Count"], result)
     elif option == "3":
         pass
     elif option == "4":
         pass
     elif option == "5":
-        year = input("Please enter a year to look at from 2010-2020")
+        year = input("Please enter a year to look at from 2010-2020  :")
         query = "SELECT organization, COUNT(*) FROM event " \
                 "WHERE EXTRACT(year FROM createTime) = " + year + \
                 "GROUP BY organization " \
                 "order by count(*) desc limit 10;"
-        result = db.run_query(query)
+        result = db.runQuery(query)
         print_tuple_2(['Organization, Count'], result)
 
 
