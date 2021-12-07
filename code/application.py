@@ -15,6 +15,7 @@ def print_tuple_2(cols, rows):
     for row in rows:
         print('{}\t{}'.format(row[0][:20], row[1]))
 
+
 def print_tuple(tuples):
     for t in tuples:
         s = ""
@@ -34,7 +35,9 @@ def answer_question(userId, option):
                 "where closetime!= '01/01/2030 01:00:00 PM' " \
                 "and (type = 'incident' or type='accident') and state = '" + state + "' " \
                                                                                      "group by state;"
-        result = db.runQuery(userId, query)
+        result = db.runQuery(userId, query,
+                             [('event', 'createtime'), ('event', 'closetime'), ('eventLocation', 'state'),
+                              ('eventFacility', 'type')])
         print("The average length of the event in " + state + " is around " + str(result[0][1]) + 'day(s)')
     elif option == "2":
         # What is the total number of each type of events in YEAR?
@@ -43,7 +46,7 @@ def answer_question(userId, option):
                 "join eventfacility e on e.id = event.eventfacilityid " \
                 "group by type, extract(year from createtime) having count(*) > 1000 " \
                 "order by type, year desc, count(*) desc;"
-        result = db.runQuery(userId, query)
+        result = db.runQuery(userId, query, [('event', 'createtime'), ('eventFacility', 'type')])
         print_tuple_3(["Event Type", "Year", "Count"], result)
     elif option == "3":
         pass
@@ -55,29 +58,33 @@ def answer_question(userId, option):
                 "WHERE EXTRACT(year FROM createTime) = " + year + \
                 "GROUP BY organization " \
                 "order by count(*) desc limit 10;"
-        result = db.runQuery(userId, query)
+        result = db.runQuery(userId, query, [('event', 'createtime'), ('event', 'organization')])
         print_tuple_2(['Organization, Count'], result)
 
 
 def process_request(command, userId):
+    DB = Database()
     if command == "1":
         print("\t1. What is the average event duration in STATE?")
         print("\t2. What is the total number of each type of events in YEAR?")
         print("\t3. What kind of hate crime occurs the most in STATE?")
         print("\t4. What is the ratio of construction events and hate crime incidents?")
         print("\t5. How many events are responded by each organization in YEAR?")
-        option = input("Please make a choice (1-5): ")
-        answer_question(userId, option)
+        print("\t6. Quit")
+
+        option = input("Please make a choice (1-6): ")
+        if option == '6':
+            pass
+        else:
+            answer_question(userId, option)
 
 
     elif command == "2":
         print("Create notes while exploring the project dataset!   :")
         note = input('please enter note, hit return / enter button to finish input  :')
-        DB = Database()
         DB.createNote(userId, note)
 
     elif command == "3":
-        DB = Database()
         print("Here are all your saved Notes!")
         notes = DB.fetchNote(userId)
         counter = 1
@@ -87,7 +94,6 @@ def process_request(command, userId):
         print('---------------------')
 
     elif command == "4":
-        DB = Database()
         print("Here are all your saved Query!")
         queries = DB.fetchQuery(userId)
         counter = 1
@@ -95,18 +101,29 @@ def process_request(command, userId):
             print(str(counter) + ". " + query[2])
             counter += 1
         print('---------------------')
-        number = input('To reran a query, enter the number:  ')
-        result = DB.runQuery(userId, queries[int(number)-1][2])
-        print('--------------')
-        print('Here is the result of '+ queries[int(number)-1][2])
-        print_tuple(result)
+        print("To reran a query, enter the number. To quit enter 0")
+        number = input('')
+        if number == "0":
+            pass
+        else:
+            result = DB.runQuery(userId, queries[int(number) - 1][2], [])
+            print('--------------')
+            print('Here is the result of ' + queries[int(number) - 1][2])
+            print_tuple(result)
     elif command == "5":
-        pass
+        print("Here are all the unique columns accessed by user: " + userId + "!")
+        accesses = DB.fetchDataAccessed(userId)
+        counter = 1
+        print('Table Accessed\t\tColumn Accessed')
+        for access in accesses:
+            print(str(counter) + ". " + access[1] + '\t\t' + access[2])
+            counter += 1
+        print('---------------------')
 
 
 def main():
     DB = Database()
-
+    DB.initApp()
     print("Welcome!")
     userId = input("Please enter your user ID: ")
 
@@ -118,7 +135,7 @@ def main():
         print("\t1. Explore Datasets")
         print("\t2. Create Notes")
         print("\t3. View Saved Notes")
-        print("\t4. View Query History")
+        print("\t4. View and Reran History Query")
         print("\t5. View Data Accessed")
         print("\t6. Quit")
 

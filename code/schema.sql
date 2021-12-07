@@ -44,7 +44,7 @@ CREATE TABLE eventLocation (
 
 CREATE TABLE eventFacility (
     id           VARCHAR(36) PRIMARY KEY,
-    type         VARCHAR(1024),
+    type         VARCHAR(2048),
     facility     VARCHAR(1024),
     direction    VARCHAR(1024)
 );
