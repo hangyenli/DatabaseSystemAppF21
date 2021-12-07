@@ -24,8 +24,7 @@ def print_tuple(tuples):
         print(s)
 
 
-def answer_question(userId, option):
-    db = Database()
+def answer_question(userId, option, db):
     if option == "1":
         state = input('Please enter the state you want to look at, such as "NY" "NJ" "CT"  :')
         query = "select state, avg(extract(days from (closetime - createtime))) as avg_duration_day " \
@@ -49,6 +48,7 @@ def answer_question(userId, option):
         result = db.runQuery(userId, query, [('event', 'createtime'), ('eventFacility', 'type')])
         print_tuple_3(["Event Type", "Year", "Count"], result)
     elif option == "3":
+        db.getHateCrimeSummary()
         pass
     elif option == "4":
         pass
@@ -67,7 +67,7 @@ def process_request(command, userId):
     if command == "1":
         print("\t1. What is the average event duration in STATE?")
         print("\t2. What is the total number of each type of events in YEAR?")
-        print("\t3. What kind of hate crime occurs the most in STATE?")
+        print("\t3. Give me a summary of hate crimes in County in New York State?")
         print("\t4. What is the ratio of construction events and hate crime incidents?")
         print("\t5. How many events are responded by each organization in YEAR?")
         print("\t6. Quit")
@@ -76,7 +76,7 @@ def process_request(command, userId):
         if option == '6':
             pass
         else:
-            answer_question(userId, option)
+            answer_question(userId, option, DB)
 
 
     elif command == "2":

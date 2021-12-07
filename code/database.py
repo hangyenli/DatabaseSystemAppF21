@@ -1,6 +1,7 @@
 import sys
 import psycopg2
 import uuid
+from pymongo import MongoClient
 
 
 class Database():
@@ -8,6 +9,9 @@ class Database():
     def __init__(self):
         connection_string = "host='localhost' dbname='app_database' user='app_admin' password='admin_password'"
         self.conn = psycopg2.connect(connection_string)
+        client = MongoClient("mongodb://localhost:27017")
+        mongo_db = client["app_database"]
+        self.mongo_conn = mongo_db["hateCrime"]
 
     def initApp(self):
         with self.conn.cursor() as cursor:
@@ -92,4 +96,38 @@ class Database():
             self.conn.commit()
             return cursor.fetchall()
 
+    def getHateCrimeSummary(self):
+        counties = []
+        for c in self.mongo_conn.distinct('County'):
+            counties.append(c)
 
+        s = ""
+        for c in counties[:5]:
+            s += c + ', '
+
+        print("Please enter a county name in NY state, such as " + s)
+        county = input()
+
+        ret = list(self.mongo_conn.aggregate([
+            {
+                "$match": {
+                    "County": county,
+                    "Crime Type": "Crimes Against Persons"
+                }
+            },
+            {
+                "$project":
+                    {"Total Incidents": 1, "Total Offenders": 1, "Total Victims": 1, "Year": 1, "County": 1, "_id": 0}
+
+            }
+        ]))
+
+        counter = 1
+        for res in ret:
+            s = ""
+            s += str(counter) + '. In ' + res['Year'] + ', in county ' + res['County'] + \
+                 ' There are ' + res[
+                     'Total Incidents'] + ' incidents in total, ' + res['Total Victims'] + ' victims in total, and ' + \
+                 res['Total Offenders'] + ' offenders in total'
+            print(s)
+            counter += 1
