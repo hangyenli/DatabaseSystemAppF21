@@ -70,7 +70,7 @@ def main():
                                    tuple(event_params))
                 location_params = []
                 event_params = []
-                print(round(i / 2627317 * 100, 2) + "% loaded")
+                print(str(round(i / 2627317 * 100, 2)) + "% loaded")
                 conn.commit()
 
         cursor.executemany("INSERT INTO eventLocation VALUES (%s, %s, %s, %s, %s, %s)",

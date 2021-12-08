@@ -41,7 +41,9 @@ python3 code/load_data.py
 ### Notice
 
 The dataset is large, a progress bar will be displayed when loading the dataset. It is ok to interrupt the loading
-process by pressing control + c anytime. However, only part of data is loaded
+process by pressing control + c anytime. However, only part of data is loaded.
+
+To load the entire ROad Event dataset. It will take about 10-15 minutes depending on the hardware.
 
 
 ## Run

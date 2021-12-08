@@ -150,9 +150,11 @@ def process_request(command, userId):
 
 # replace any ; with injection found to create an error when executing the sql command
 def sanitize(input):
-    ret = input.replace(";", "Injection Found")
+    if ';' not in input:
+        return input
+    else:
+        raise
 
-    return ret
 
 
 def main():
