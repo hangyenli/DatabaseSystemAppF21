@@ -9,7 +9,7 @@ INSERT INTO users VALUES ('tester');
 CREATE TABLE userNote (
     id     VARCHAR(36) PRIMARY KEY,
     userId VARCHAR(36),
-    note   VARCHAR(255),
+    note   VARCHAR(256),
     FOREIGN KEY (userId) REFERENCES users (id)
                 ON DELETE CASCADE
 );
@@ -17,7 +17,7 @@ CREATE TABLE userNote (
 CREATE TABLE userQuery (
     id     VARCHAR(36) PRIMARY KEY,
     userId VARCHAR(36),
-    query  VARCHAR(255),
+    query  VARCHAR(256),
     FOREIGN KEY (userId) REFERENCES users (id)
                 ON DELETE CASCADE
 );
@@ -25,8 +25,8 @@ CREATE TABLE userQuery (
 CREATE TABLE userAccessedData (
     id             VARCHAR(36) PRIMARY KEY,
     userId         VARCHAR(36),
-    accessedTable  VARCHAR(255),
-    accessedColumn VARCHAR(255),
+    accessedTable  VARCHAR(256),
+    accessedColumn VARCHAR(256),
     FOREIGN KEY (userId) REFERENCES users (id)
                 ON DELETE CASCADE
 );
@@ -37,9 +37,9 @@ CREATE TABLE eventLocation (
     id        VARCHAR(36) PRIMARY KEY,
     city      VARCHAR(512),
     county    VARCHAR(512),
-    state     VARCHAR(3),
-    latitude  DECIMAL(20, 1000),
-    longitude DECIMAL(20, 1000)
+    state     VARCHAR(4),
+    latitude  DECIMAL(100, 20),
+    longitude DECIMAL(100, 20)
 );
 
 CREATE TABLE eventFacility (
@@ -48,7 +48,7 @@ CREATE TABLE eventFacility (
     facility     VARCHAR(1024),
     direction    VARCHAR(1024)
 );
-
+CREATE INDEX FacilityByAttributes ON eventFacility (type, facility, direction);
 
 CREATE TABLE event (
     id              VARCHAR(36) PRIMARY KEY,

@@ -5,48 +5,64 @@ import uuid
 import csv
 from pymongo import MongoClient
 
-
 def main():
     # Load dataset 1
-    connection_string = "host='localhost' dbname='app_database' user='app_admin' password='admin_password'"
+    connection_string = "host='localhost' dbname='app_database' \
+                         user='app_admin' password='admin_password'"
     conn = psycopg2.connect(connection_string)
     cursor = conn.cursor()
 
-    df = pd.read_csv("data/511_NY_Events__Beginning_2010.csv", \
-                     delimiter=',', na_filter=False)
+    filename = "data/511_NY_Events__Beginning_2010.csv"
+    with open(filename, 'r') as csvfile:
+        csvreader = csv.reader(csvfile)
+        fields = next(csvreader)
 
-    cursor.execute
-    counter = 0
-    for row in df.values:
-        # eventLocation
-        location_id = str(uuid.uuid4())
-        cursor.execute("INSERT INTO eventLocation VALUES " +
-                       str((location_id, row[4], row[5], row[6], row[11], row[12])))
-        # eventFacility
-        cursor.execute("SELECT id FROM eventFacility WHERE type=$$%s$$ AND facility=$$%s$$ AND direction=$$%s$$"
-                       % (row[0], row[2], row[3]))
-        record = cursor.fetchall()
-        facility_id = ""
-        if len(record) == 0:
-            facility_id = str(uuid.uuid4())
-            cursor.execute(
-                "INSERT INTO eventFacility VALUES ($$%s$$, $$%s$$,$$%s$$,$$%s$$)" % (
-                    facility_id, row[0], row[2], row[3]))
-        else:
-            facility_id = record[0][0]
-        # event
+        # Load eventFacility
+        values = set()
+        for row in csvreader:
+            values.add((row[0], row[2], row[3]))
+        params = []
+        for value in values:
+            param = list(value)
+            param.insert(0, str(uuid.uuid4()))
+            params.append(tuple(param))
+        cursor.executemany("INSERT INTO eventFacility VALUES (%s, %s, %s, %s)",
+                           tuple(params))
+        conn.commit()
 
+        csvfile.seek(0)
+        next(csvreader)
+        # Load eventLocation & event
+        location_params = []
+        event_params = []
+        for i, row in enumerate(csvreader):
+            # eventLocaation
+            location_id = str(uuid.uuid4())
+            location_params.append((location_id, row[4], row[5], row[6], row[11], row[12]))
+            # event
+            cursor.execute("SELECT id FROM eventFacility WHERE type = %s AND \
+                           facility = %s AND direction = %s", (row[0], row[2], row[3]))
+            facility_id = cursor.fetchall()[0][0]
+            event_params.append((str(uuid.uuid4()), row[1], location_id, facility_id, row[7],
+                          row[8] if row[8] != '' else '01/01/2030 01:00:00 PM'))
 
-        cursor.execute("INSERT INTO event VALUES ($$%s$$, $$%s$$, $$%s$$,$$%s$$, $$%s$$,$$%s$$)" %
-                       (str(uuid.uuid4()), row[1], location_id, facility_id, row[7],
-                        row[8] if row[8] != '' else '01/01/2030 01:00:00 PM'))
-        counter += 1
+            if i%5000 == 0:
+                cursor.executemany("INSERT INTO eventLocation VALUES (%s, %s, %s, %s, %s, %s)",
+                                   tuple(location_params))
+                cursor.executemany("INSERT INTO event VALUES (%s, %s, %s, %s, %s, %s)",
+                                   tuple(event_params))
+                location_params = []
+                event_params = []
+                print(round(i/2627317*100, 2))
 
-        if counter == 5000:
-            conn.commit()
-            counter = 0
+        cursor.executemany("INSERT INTO eventLocation VALUES (%s, %s, %s, %s, %s, %s)",
+                           tuple(location_params))
+        cursor.executemany("INSERT INTO event VALUES (%s, %s, %s, %s, %s, %s)",
+                           tuple(event_params))
+        conn.commit()
 
-    # Load dataset 2 (Non-relational)
+    """
+    # Load dataset 2 (non-relational)
     client = MongoClient("mongodb://localhost:27017")
     mongo_db = client["app_database"]
     mongo_crime = mongo_db["hateCrime"]
@@ -64,7 +80,7 @@ def main():
                 d[fields[counter]] = col
                 counter += 1
             mongo_crime.insert_one(d)
-
+    """
 
 if __name__ == '__main__':
     main()
