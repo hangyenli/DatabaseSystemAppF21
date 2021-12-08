@@ -3,17 +3,17 @@ from database import Database
 
 
 def print_tuple_3(cols, rows):
-    col = "".join(col for col in cols)
+    col = "\t\t".join(col for col in cols)
     print(col)
     for row in rows:
-        print("{}\t{}\t{}".format(row[0][:20], row[1], row[2]))
+        print("{}\t\t{}\t\t{}".format(row[0][:20], row[1], row[2]))
 
 
 def print_tuple_2(cols, rows):
-    col = "".join(col for col in cols)
+    col = "\t\t".join(col for col in cols)
     print(col)
     for row in rows:
-        print('{}\t{}'.format(row[0][:20], row[1]))
+        print('{}\t\t{}'.format(row[0][:20], row[1]))
 
 
 def print_tuple(tuples):
@@ -47,11 +47,26 @@ def answer_question(userId, option, db):
                 "order by type, year desc, count(*) desc;"
         result = db.runQuery(userId, query, [('event', 'createtime'), ('eventFacility', 'type')])
         print_tuple_3(["Event Type", "Year", "Count"], result)
+        print('-----------------------')
     elif option == "3":
         db.getHateCrimeSummary()
         pass
     elif option == "4":
-        pass
+
+        query = "select to_char(createtime, 'YYYY') as year, facility, count(*) " \
+                "from event " \
+                "join eventlocation e on e.id = event.eventlocationid " \
+                "join eventfacility e2 on e2.id = event.eventfacilityid " \
+                "where (type like '%incident%' or type like '%accident%') " \
+                "group by to_char(createtime, 'YYYY'), facility " \
+                "having count(*)>1000 " \
+                "order by count(*) desc " \
+                "limit 20;"
+        result = db.runQuery(userId, query,
+                             [('event', 'createtime'), ('eventFacility', 'facility'), ('eventLocation', 'county')])
+        print_tuple_3(['Year', 'facility', 'count'], result)
+        print('-----------------------')
+
     elif option == "5":
         year = input("Please enter a year to look at from 2010-2020  :")
         query = "SELECT organization, COUNT(*) FROM event " \
@@ -68,7 +83,7 @@ def process_request(command, userId):
         print("\t1. What is the average event duration in STATE?")
         print("\t2. What is the total number of each type of events in YEAR?")
         print("\t3. Give me a summary of hate crimes in County in New York State?")
-        print("\t4. What is the ratio of construction events and hate crime incidents?")
+        print("\t4. Give me a summary of accident events in New York State")
         print("\t5. How many events are responded by each organization in YEAR?")
         print("\t6. Quit")
 
