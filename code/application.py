@@ -180,4 +180,4 @@ if __name__ == '__main__':
     try:
         main()
     except:
-        print("error in the app")
+        print("Injection found! App is exiting!!!")
