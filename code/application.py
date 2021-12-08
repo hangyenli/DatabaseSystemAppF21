@@ -1,20 +1,17 @@
 import sys
 from database import Database
 
-
 def print_tuple_3(cols, rows):
     col = "\t\t".join(col for col in cols)
     print(col)
     for row in rows:
         print("{}\t\t{}\t\t{}".format(row[0][:20], row[1], row[2]))
 
-
 def print_tuple_2(cols, rows):
     col = "\t\t".join(col for col in cols)
     print(col)
     for row in rows:
         print('{}\t\t{}'.format(row[0][:20], row[1]))
-
 
 def print_tuple(tuples):
     for t in tuples:
@@ -23,17 +20,16 @@ def print_tuple(tuples):
             s += str(col) + '\t'
         print(s)
 
-
 def answer_question(userId, option, db):
     if option == "1":
-        state = input('Please enter the state you want to look at, such as "NY" "NJ" "CT"  :')
-        query = "select state, avg(extract(days from (closetime - createtime))) as avg_duration_day " \
-                "from event " \
-                "join eventlocation e on e.id = event.eventlocationid " \
-                "join eventfacility e2 on e2.id = event.eventfacilityid " \
-                "where closetime!= '01/01/2030 01:00:00 PM' " \
-                "and (type = 'incident' or type='accident') and state = '" + state + "' " \
-                                                                                     "group by state;"
+        state = input('Please enter the state you want to look at, such as "NY" "NJ" "CT":')
+        query = "SELECT state, AVG(EXTRACT(days FROM (closetime - createtime))) AS avg_duration_day \
+                 FROM event \
+                 JOIN eventlocation e ON e.id = event.eventlocationid \
+                 JOIN eventfacility e2 ON e2.id = event.eventfacilityid \
+                 WHERE closetime!= '01/01/2030 01:00:00 PM' \
+                 AND (type = 'incident' OR type = 'accident') \
+                 AND state = '" + state + "' group by state;"
         result = db.runQuery(userId, query,
                              [('event', 'createtime'), ('event', 'closetime'), ('eventLocation', 'state'),
                               ('eventFacility', 'type')])
@@ -75,7 +71,6 @@ def answer_question(userId, option, db):
                 "order by count(*) desc limit 10;"
         result = db.runQuery(userId, query, [('event', 'createtime'), ('event', 'organization')])
         print_tuple_2(['Organization, Count'], result)
-
 
 def process_request(command, userId):
     DB = Database()
@@ -134,7 +129,6 @@ def process_request(command, userId):
             counter += 1
         print('---------------------')
 
-
 def main():
     DB = Database()
     DB.initApp()
@@ -158,7 +152,6 @@ def main():
             break
         else:
             process_request(command, userId)
-
 
 if __name__ == '__main__':
     main()
