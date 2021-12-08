@@ -93,7 +93,6 @@ def process_request(command, userId):
         else:
             answer_question(userId, option, DB)
 
-
     elif command == "2":
         print("Create notes while exploring the project dataset!   :")
         note = input('please enter note, hit return / enter button to finish input  :')
