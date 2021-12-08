@@ -6,11 +6,24 @@ that are listed below.
 ## Data
 
 1. Hate Crimes by County and Bias Type: Beginning 2010
-   https://data.ny.gov/Public-Safety/Hate-Crimes-by-County-and-Bias-Type-Beginning-2010/6xda-q7ev
+   1. Data Source:
+      1. https://data.ny.gov/Public-Safety/Hate-Crimes-by-County-and-Bias-Type-Beginning-2010/6xda-q7ev
+
+   2. To download the dataset
+      1. Open the link in the previous step
+      2. Find export button besides the title
+         1. Click on it
+         2. Click on CSV button
 
 2. 511 NY Events: Beginning 2010
-   https://data.ny.gov/Transportation/511-NY-Events-Beginning-2010/ah74-pg4w
-
+   1. Data Source
+      1. https://data.ny.gov/Transportation/511-NY-Events-Beginning-2010/ah74-pg4w
+   2. To download the dataset
+      1. Open the link in the previous step
+      2. Find export button besides the title
+         1. Click on it
+         2. Click on CSV button
+         3. The dataset is around 500 Mbs
 ## Requirements
 
 You need to install the python packages specified in the requirements.txt to run this application by running 
