@@ -42,7 +42,7 @@ class Database():
 
     def authUser(self, userId):
         with self.conn.cursor() as cursor:
-            cursor.execute("SELECT id FROM users WHERE id = %s", (userId, ))
+            cursor.execute("SELECT id FROM users WHERE id = %s", (userId,))
             record = cursor.fetchall()
             if len(record) == 0:
                 return False
@@ -71,15 +71,15 @@ class Database():
 
     def fetchNote(self, userId):
         with self.conn.cursor() as cursor:
-            query = "SELECT * FROM userNote WHERE userId = '%s'" % (userId, )
-            cursor.execute("SELECT * FROM userNote WHERE userId = %s", (userId, ))
+            query = "SELECT * FROM userNote WHERE userId = '%s'" % (userId,)
+            cursor.execute("SELECT * FROM userNote WHERE userId = %s", (userId,))
             self.addUserQuery(userId, query)
             return cursor.fetchall()
 
     def fetchQuery(self, userId):
         with self.conn.cursor() as cursor:
-            query = "SELECT * FROM userQuery WHERE userId = '%s'" % (userId, )
-            cursor.execute("SELECT * FROM userQuery WHERE userId = %s", (userId, ))
+            query = "SELECT * FROM userQuery WHERE userId = '%s'" % (userId,)
+            cursor.execute("SELECT * FROM userQuery WHERE userId = %s", (userId,))
             self.addUserQuery(userId, query)
             self.addUserDataAccessed(userId, [('userQuery', 'userId'), ('userQuery', 'query')])
             return cursor.fetchall()
@@ -87,9 +87,9 @@ class Database():
     def fetchDataAccessed(self, userId):
         with self.conn.cursor() as cursor:
             query = "SELECT DISTINCT userId, accessedTable, accessedColumn \
-                     FROM userAccessedData WHERE userId = '%s'" % (userId, )
+                     FROM userAccessedData WHERE userId = '%s'" % (userId,)
             cursor.execute("SELECT DISTINCT userId, accessedTable, accessedColumn \
-                            FROM userAccessedData WHERE userId = %s", (userId, ))
+                            FROM userAccessedData WHERE userId = %s", (userId,))
             self.addUserQuery(userId, query)
             self.addUserDataAccessed(userId, [('userAccessedData', 'userId'),
                                               ('userAccessedData', 'accessedTable'),
@@ -97,11 +97,11 @@ class Database():
 
             return cursor.fetchall()
 
-    def runQuery(self, userId, query, col_accessedd):
+    def runQuery(self, userId, query, col_accessed):
         with self.conn.cursor() as cursor:
             cursor.execute(query)
             self.addUserQuery(userId, query)
-            self.addUserDataAccessed(userId, col_accessedd)
+            self.addUserDataAccessed(userId, col_accessed)
             self.conn.commit()
             return cursor.fetchall()
 
