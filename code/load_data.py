@@ -62,7 +62,7 @@ def main():
             facility_id = cursor.fetchall()[0][0]
             event_params.append((str(uuid.uuid4()), row[1], location_id, facility_id, row[7],
                                  row[8] if row[8] != '' else '01/01/2030 01:00:00 PM'))
-
+            # so that you don't have to load the entire dataset at once
             if i % 5000 == 0:
                 cursor.executemany("INSERT INTO eventLocation VALUES (%s, %s, %s, %s, %s, %s)",
                                    tuple(location_params))

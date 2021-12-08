@@ -25,6 +25,7 @@ def print_tuple(tuples):
 
 
 def answer_question(userId, option, db):
+    # question 1
     if option == "1":
         state = input('Please enter the state you want to look at, such as "NY" "NJ" "CT":')
         state = sanitize(state)
@@ -53,7 +54,6 @@ def answer_question(userId, option, db):
         db.getHateCrimeSummary()
         pass
     elif option == "4":
-
         query = "select to_char(createtime, 'YYYY') as year, facility, count(*) " \
                 "from event " \
                 "join eventlocation e on e.id = event.eventlocationid " \
@@ -80,7 +80,10 @@ def answer_question(userId, option, db):
 
 
 def process_request(command, userId):
+    # initiate database connection
     DB = Database()
+
+    # case 1, explore dataset
     if command == "1":
         print("\t1. What is the average event duration in STATE?")
         print("\t2. What is the total number of each type of events in YEAR?")
@@ -89,15 +92,18 @@ def process_request(command, userId):
         print("\t5. How many events are responded by each organization in YEAR?")
         print("\t6. Quit")
 
+        # ask for user input
         option = input("Please make a choice (1-6): ")
         option = sanitize(option)
-
+        # quit program if user wishes to do so
         if option == '6':
             pass
         else:
+            # answer corresponding question
             answer_question(userId, option, DB)
 
     elif command == "2":
+        # ask for user input
         print("Create notes while exploring the project dataset!   :")
         note = input('please enter note, hit return / enter button to finish input  :')
         note = sanitize(note)
@@ -121,6 +127,7 @@ def process_request(command, userId):
             counter += 1
         print('---------------------')
         print("To reran a query, enter the number. To quit enter 0")
+        # ask for user input
         number = input('')
         number = sanitize(number)
 
@@ -141,7 +148,7 @@ def process_request(command, userId):
             counter += 1
         print('---------------------')
 
-
+# replace any ; with injection found to create an error when executing the sql command
 def sanitize(input):
     ret = input.replace(";", "Injection Found")
 
@@ -149,16 +156,21 @@ def sanitize(input):
 
 
 def main():
+    # initiate the data base
     DB = Database()
     DB.initApp()
     print("Welcome!")
+
+    # ask user to enter userID
     userId = input("Please enter your user ID: ")
     userId = sanitize(userId)
 
+    # quit the program if user does not exist
     if not DB.authUser(userId):
         print("Invalid user ID.")
         return
 
+    # main loop
     while (1):
         print("\t1. Explore Datasets")
         print("\t2. Create Notes")
@@ -167,16 +179,20 @@ def main():
         print("\t5. View Data Accessed")
         print("\t6. Quit")
 
+        # ask for user command
         command = input("Please make a choice (1-6): ")
         command = sanitize(command)
 
+        # quit the app if user choose to do so
         if command == "6":
             break
         else:
+        # otherwise process the command
             process_request(command, userId)
 
 
 if __name__ == '__main__':
+    # run main function to start the app
     try:
         main()
     except:
