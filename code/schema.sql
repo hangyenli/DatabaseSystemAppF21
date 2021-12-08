@@ -3,8 +3,8 @@
 CREATE TABLE users (
     id   VARCHAR(36) PRIMARY KEY
 );
-INSERT INTO users VALUES ('admin');
-INSERT INTO users VALUES ('tester');
+INSERT INTO users VALUES ('alice');
+INSERT INTO users VALUES ('bob');
 
 CREATE TABLE userNote (
     id     VARCHAR(36) PRIMARY KEY,
