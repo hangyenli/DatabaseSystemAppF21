@@ -1,17 +1,20 @@
 import sys
 from database import Database
 
+
 def print_tuple_3(cols, rows):
     col = "\t\t".join(col for col in cols)
     print(col)
     for row in rows:
         print("{}\t\t{}\t\t{}".format(row[0][:20], row[1], row[2]))
 
+
 def print_tuple_2(cols, rows):
     col = "\t\t".join(col for col in cols)
     print(col)
     for row in rows:
         print('{}\t\t{}'.format(row[0][:20], row[1]))
+
 
 def print_tuple(tuples):
     for t in tuples:
@@ -20,9 +23,11 @@ def print_tuple(tuples):
             s += str(col) + '\t'
         print(s)
 
+
 def answer_question(userId, option, db):
     if option == "1":
         state = input('Please enter the state you want to look at, such as "NY" "NJ" "CT":')
+        state = sanitize(state)
         query = "SELECT state, AVG(EXTRACT(days FROM (closetime - createtime))) AS avg_duration_day \
                  FROM event \
                  JOIN eventlocation e ON e.id = event.eventlocationid \
@@ -65,12 +70,14 @@ def answer_question(userId, option, db):
 
     elif option == "5":
         year = input("Please enter a year to look at from 2010-2020  :")
+        year = sanitize(year)
         query = "SELECT organization, COUNT(*) FROM event " \
                 "WHERE EXTRACT(year FROM createTime) = " + year + \
                 "GROUP BY organization " \
                 "order by count(*) desc limit 10;"
         result = db.runQuery(userId, query, [('event', 'createtime'), ('event', 'organization')])
         print_tuple_2(['Organization, Count'], result)
+
 
 def process_request(command, userId):
     DB = Database()
@@ -83,6 +90,8 @@ def process_request(command, userId):
         print("\t6. Quit")
 
         option = input("Please make a choice (1-6): ")
+        option = sanitize(option)
+
         if option == '6':
             pass
         else:
@@ -91,6 +100,7 @@ def process_request(command, userId):
     elif command == "2":
         print("Create notes while exploring the project dataset!   :")
         note = input('please enter note, hit return / enter button to finish input  :')
+        note = sanitize(note)
         DB.createNote(userId, note)
 
     elif command == "3":
@@ -112,6 +122,8 @@ def process_request(command, userId):
         print('---------------------')
         print("To reran a query, enter the number. To quit enter 0")
         number = input('')
+        number = sanitize(number)
+
         if number == "0":
             pass
         else:
@@ -129,11 +141,19 @@ def process_request(command, userId):
             counter += 1
         print('---------------------')
 
+
+def sanitize(input):
+    ret = input.replace(";", "Injection Found")
+
+    return ret
+
+
 def main():
     DB = Database()
     DB.initApp()
     print("Welcome!")
     userId = input("Please enter your user ID: ")
+    userId = sanitize(userId)
 
     if not DB.authUser(userId):
         print("Invalid user ID.")
@@ -148,10 +168,16 @@ def main():
         print("\t6. Quit")
 
         command = input("Please make a choice (1-6): ")
+        command = sanitize(command)
+
         if command == "6":
             break
         else:
             process_request(command, userId)
 
+
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except:
+        print("error in the app")
