@@ -1,0 +1,24 @@
+{
+  "name": "databasesystemappf21",
+  "version": "1.0.0",
+  "description": "master server for distributed systems",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hangyenli/DatabaseSystemAppF21.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hangyenli/DatabaseSystemAppF21/issues"
+  },
+  "homepage": "https://github.com/hangyenli/DatabaseSystemAppF21#readme",
+  "dependencies": {
+    "body-parser": "^1.19.1",
+    "express": "^4.17.1"
+  }
+}
