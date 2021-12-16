@@ -1,6 +1,7 @@
 import sys
 from database import Database
 
+address = 'address2'
 
 def print_tuple_3(cols, rows):
     col = "\t\t".join(col for col in cols)
