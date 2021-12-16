@@ -1,6 +1,6 @@
 import sys
 from database1 import Database
-from server import runServer, post
+from server import runServer, post, get
 from threading import Thread
 
 address = 'address1'
@@ -152,9 +152,11 @@ def process_request(command, userId):
             counter += 1
         print('---------------------')
     elif command == "6":
-        ret = post(3000,'/test',{"aaa":"22"})
-        print(ret.json())
+        ret = get(3000,'/')
         print(ret.status_code)
+        print(ret.json())
+
+
 
 # replace any ; with injection found to create an error when executing the sql command
 def sanitize(input):

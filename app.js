@@ -17,8 +17,7 @@ const pool = new Pool(credentials);
 
 
 app.get('/', async (req, res) => {
-    console.log("1")
-    res.send('master server running')
+    res.send({status: 'ok'})
 })
 app.post('/test', async (req, res) => {
     console.log("post")

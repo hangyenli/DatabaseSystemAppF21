@@ -28,3 +28,8 @@ def post(port, route, json):
     r = requests.post('http://localhost:'+str(port)+route, json=json)
     return r
 
+
+def get(port, route):
+    r = requests.get('http://localhost:'+str(port)+route)
+    return r
+
