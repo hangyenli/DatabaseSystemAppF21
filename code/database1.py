@@ -3,6 +3,7 @@ import psycopg2
 import uuid
 from pymongo import MongoClient
 
+master =3000
 
 class Database():
     # init the connection for postgres and mongoDB
@@ -74,9 +75,10 @@ class Database():
     # create a user note in the application to help user remember things
     def createNote(self, userId, note):
         with self.conn.cursor() as cursor:
-            cursor.execute("INSERT INTO userNote VALUES (%s, %s, %s)",
-                           (str(uuid.uuid4()), userId, note))
+            query = "INSERT INTO userNote VALUES ('%s', '%s', '%s')" % (str(uuid.uuid4()),userId, note)
+            cursor.execute(query)
             self.conn.commit()
+            return query
 
     # function to retrieve all user notes
     def fetchNote(self, userId):
@@ -84,6 +86,7 @@ class Database():
             query = "SELECT * FROM userNote WHERE userId = '%s'" % (userId,)
             cursor.execute("SELECT * FROM userNote WHERE userId = %s", (userId,))
             self.addUserQuery(userId, query)
+
             return cursor.fetchall()
 
     # function to retrieve all user history queries

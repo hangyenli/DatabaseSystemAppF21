@@ -71,8 +71,6 @@ app.post('/updateUserStrategy/:userId/:strategy', async (req, res) => {
 
 app.post('/registerUser/:userId', async (req, res) => {
     const id = req.params.userId;
-                    console.log('here');
-
     (async () => {
         const client = await pool.connect()
         try {
@@ -81,7 +79,6 @@ app.post('/registerUser/:userId', async (req, res) => {
                       from users
                       where id = $1`
             let result = await client.query(q0, [id])
-            console.log(result);
             if (result.rowCount == 0) {
                 let q1 = `insert into users
                           values ($1)`
@@ -105,6 +102,54 @@ app.post('/registerUser/:userId', async (req, res) => {
     })().catch(e => res.send(e))
 })
 
+
+app.post('/addTask', async (req, res) => {
+    (async () => {
+        const client = await pool.connect()
+        try {
+            await client.query('BEGIN');
+            const uid = uuidv4();
+            const task = req.body.query;
+            const userId = req.body.userId;
+            const address = "http://localhost:" + req.body.address;
+            const queryText = `insert into taskQueue values ($1,$2,$3,$4)`
+            await client.query(queryText,[uid,userId,address,task])
+            await client.query('COMMIT')
+
+            res.send({status: 'ok'})
+        } catch (e) {
+            await client.query('ROLLBACK')
+            throw e
+        } finally {
+            client.release()
+        }
+    })().catch(e => res.send(e))
+})
+
+app.get('/getSession/:userId/:address', async (req, res) => {
+    const id = req.params.userId;
+    const address = "http://localhost:" + req.params.address;
+    (async () => {
+        const client = await pool.connect()
+        try {
+            await client.query('BEGIN')
+            const queryText = `select *
+                               from session
+                               where userId = $1
+                                 and applicationAddress = $2`
+            const result = await client.query(queryText, [id, address])
+            await client.query('COMMIT')
+            res.send(result.rows ? result.rows[0] : null)
+        } catch (e) {
+            await client.query('ROLLBACK')
+            throw e
+        } finally {
+            client.release()
+        }
+    })().catch(e => res.send(e))
+})
+
+
 app.post('/updateSession', async (req, res) => {
     const rb = req.body;
     (async () => {
@@ -123,7 +168,6 @@ app.post('/updateSession', async (req, res) => {
                 query = `insert into session
                          values ($1, $2, $3)`
                 result = await client.query(query, [rb.userId, rb.applicationAddress, 'on'])
-                console.log(result);
             } else {
                 query = `update session
                          set status = $3

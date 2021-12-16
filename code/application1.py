@@ -84,6 +84,24 @@ def answer_question(userId, option, db):
         result = db.runQuery(userId, query, [('event', 'createtime'), ('event', 'organization')])
         print_tuple_2(['Organization, Count'], result)
 
+def getSession(userId):
+    route = '/getSession/' + userId + '/' + str(port)
+    r = get(master, route)
+    result = r.json()
+    return result['status']
+
+def addTask(userId, query):
+    #     check if session is on
+    status = getSession(userId)
+
+    if status == 'on':
+        #         push to master directly
+        print('here')
+        post(master, '/addTask', {"query": query, "userId": userId, "address": str(port)})
+    else:
+        pass
+#         push to local first
+
 
 def process_request(command, userId):
     # initiate database connection
@@ -113,7 +131,8 @@ def process_request(command, userId):
         print("Create notes while exploring the project dataset!   :")
         note = input('please enter note, hit return / enter button to finish input  :')
         note = sanitize(note)
-        DB.createNote(userId, note)
+        query = DB.createNote(userId, note)
+        addTask(userId, query)
 
     elif command == "3":
         print("Here are all your saved Notes!")
@@ -175,7 +194,6 @@ def process_request(command, userId):
             print('no changed is made')
 
 
-
 # replace any ; with injection found to create an error when executing the sql command
 def sanitize(input):
     if ';' not in input:
@@ -188,7 +206,7 @@ def main():
     try:
         # initiate the data base
         DB = Database()
-        DB.initApp()
+        # DB.initApp()
         print("Welcome!")
 
         # ask user to enter userID
@@ -222,21 +240,29 @@ def main():
             print("\t4. View and Reran History Query")
             print("\t5. View Data Accessed")
             print("\t6. Sync Option")
-            print("\t7. Quit")
+            print("\t7. Turn on session")
+            print("\t8. Turn off session")
 
             # ask for user command
             command = input("Please make a choice (1-6): ")
             command = sanitize(command)
 
-            # quit the app if user choose to do so
+            # open the session
             if command == "7":
-                # delete app session
+                post(master, '/updateSession', {
+                    "userId": userId,
+                    "applicationAddress": "http://localhost:" + str(port),
+                    "status": "on"
+                })
+                print('Session has now been turned on')
+            # delete the session
+            if command == "8":
                 post(master, '/updateSession', {
                     "userId": userId,
                     "applicationAddress": "http://localhost:" + str(port),
                     "status": "off"
                 })
-                break
+                print('Session has now been turned off')
             else:
                 # otherwise process the command
                 process_request(command, userId)

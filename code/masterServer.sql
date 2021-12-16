@@ -49,8 +49,9 @@ create table taskQueue
     id                 varchar(36),
     userId             varchar(36),
     applicationAddress varchar(36),
-    query              varchar(36),
-    timestamp          date,
+    query              varchar(512),
+    timestamp          timestamp
+        default CURRENT_TIMESTAMP ,
     primary key (id),
     foreign key (userId, applicationAddress) references userApplicationAddress (userId, applicationAddress)
 );
