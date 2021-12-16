@@ -1,9 +1,10 @@
 import sys
 from database1 import Database
-from server import runServer
+from server import runServer, post
 from threading import Thread
 
 address = 'address1'
+
 
 def print_tuple_3(cols, rows):
     col = "\t\t".join(col for col in cols)
@@ -150,6 +151,10 @@ def process_request(command, userId):
             print(str(counter) + ". " + access[1] + '\t\t' + access[2])
             counter += 1
         print('---------------------')
+    elif command == "6":
+        ret = post(3000,'/test',{"aaa":"22"})
+        print(ret.json())
+        print(ret.status_code)
 
 # replace any ; with injection found to create an error when executing the sql command
 def sanitize(input):
@@ -157,7 +162,6 @@ def sanitize(input):
         return input
     else:
         raise
-
 
 
 def main():
@@ -182,17 +186,18 @@ def main():
         print("\t3. View Saved Notes")
         print("\t4. View and Reran History Query")
         print("\t5. View Data Accessed")
-        print("\t6. Quit")
+        print("\t6. test")
+        print("\t7. Quit")
 
         # ask for user command
         command = input("Please make a choice (1-6): ")
         command = sanitize(command)
 
         # quit the app if user choose to do so
-        if command == "6":
+        if command == "7":
             break
         else:
-        # otherwise process the command
+            # otherwise process the command
             process_request(command, userId)
 
 

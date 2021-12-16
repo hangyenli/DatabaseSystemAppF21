@@ -4,7 +4,7 @@ const {v4: uuidv4} = require('uuid');
 const app = express()
 const port = 3000
 
-app.use(express.json()); //Used to parse JSON bodies
+app.use(express.json())    // <==== parse request body as JSON
 
 const credentials = {
     user: "master_admin",
@@ -17,7 +17,13 @@ const pool = new Pool(credentials);
 
 
 app.get('/', async (req, res) => {
+    console.log("1")
     res.send('master server running')
+})
+app.post('/test', async (req, res) => {
+    console.log("post")
+    console.log(req.body)
+    res.send(req.body)
 })
 
 app.get('/getUserStrategy/:userId', async (req, res) => {
