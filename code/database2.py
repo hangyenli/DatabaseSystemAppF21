@@ -37,9 +37,6 @@ class Database():
                                                            accessedColumn VARCHAR(255), \
                             FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE );")
 
-            cursor.execute("INSERT INTO users VALUES ('admin')")
-            cursor.execute("INSERT INTO users VALUES ('tester')")
-
             self.conn.commit()
 
     # authenticate a user login
@@ -51,6 +48,12 @@ class Database():
                 return False
             else:
                 return True
+
+    # register a user login
+    def addUser(self, userId):
+        with self.conn.cursor() as cursor:
+            cursor.execute("insert into users values (%s)", (userId,))
+            self.conn.commit()
 
     # create a query history for user, so he can review it later
     def addUserQuery(self, userId, query):

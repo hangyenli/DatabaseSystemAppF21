@@ -1,9 +1,12 @@
 import sys
 from database2 import Database
-from server import runServer
+from server import runServer, post, get
 from threading import Thread
 
-address = 'address2'
+address = 'address1'
+master = 3000
+port = 5001
+
 
 def print_tuple_3(cols, rows):
     col = "\t\t".join(col for col in cols)
@@ -150,6 +153,28 @@ def process_request(command, userId):
             print(str(counter) + ". " + access[1] + '\t\t' + access[2])
             counter += 1
         print('---------------------')
+    elif command == "6":
+        # retrieve strategy
+        userStrategyRet = get(master, '/getUserStrategy/' + userId)
+        strategy = userStrategyRet.json()
+        strategy = strategy['strategyname']
+        print('current sync strategy is ' + strategy)
+        print('to change the sync strategy to fcfs enter 1')
+        print('to change the sync strategy to lcfs enter 2')
+
+        option = input()
+
+        if option == '1':
+            # update user strategy
+            post(master, '/updateUserStrategy/' + userId + '/fcfs', {})
+            print('current sync strategy is set to fcfs')
+        elif option == '2':
+            post(master, '/updateUserStrategy/' + userId + '/lcfs', {})
+            print('current sync strategy is set to lcfs')
+        else:
+            print('no changed is made')
+
+
 
 # replace any ; with injection found to create an error when executing the sql command
 def sanitize(input):
@@ -159,47 +184,77 @@ def sanitize(input):
         raise
 
 
-
 def main():
-    # initiate the data base
-    DB = Database()
-    DB.initApp()
-    print("Welcome!")
+    try:
+        # initiate the data base
+        DB = Database()
+        DB.initApp()
+        print("Welcome!")
 
-    # ask user to enter userID
-    userId = input("Please enter your user ID: ")
-    userId = sanitize(userId)
+        # ask user to enter userID
+        userId = input("Please enter your user ID: ")
+        userId = sanitize(userId)
 
-    # quit the program if user does not exist
-    if not DB.authUser(userId):
-        print("Invalid user ID.")
-        return
+        # quit the program if user does not exist
+        if not DB.authUser(userId):
+            # add to local database
+            DB.addUser(userId)
 
-    # main loop
-    while (1):
-        print("\t1. Explore Datasets")
-        print("\t2. Create Notes")
-        print("\t3. View Saved Notes")
-        print("\t4. View and Reran History Query")
-        print("\t5. View Data Accessed")
-        print("\t6. Quit")
+            # notify master a user registered
+            post(master, '/registerUser/' + userId, {})
 
-        # ask for user command
-        command = input("Please make a choice (1-6): ")
-        command = sanitize(command)
-
-        # quit the app if user choose to do so
-        if command == "6":
-            break
+            print("New user registered")
         else:
-        # otherwise process the command
-            process_request(command, userId)
+            print('Welcome ' + userId)
+
+        # add app session
+        post(master, '/updateSession', {
+            "userId": userId,
+            "applicationAddress": "http://localhost:" + str(port),
+            "status": "on"
+        })
+
+        # main loop
+        while (1):
+            print("\t1. Explore Datasets")
+            print("\t2. Create Notes")
+            print("\t3. View Saved Notes")
+            print("\t4. View and Reran History Query")
+            print("\t5. View Data Accessed")
+            print("\t6. Sync Option")
+            print("\t7. Quit")
+
+            # ask for user command
+            command = input("Please make a choice (1-6): ")
+            command = sanitize(command)
+
+            # quit the app if user choose to do so
+            if command == "7":
+                # delete app session
+                post(master, '/updateSession', {
+                    "userId": userId,
+                    "applicationAddress": "http://localhost:" + str(port),
+                    "status": "off"
+                })
+                break
+            else:
+                # otherwise process the command
+                process_request(command, userId)
+    except:
+        # delete app session
+        post(master, '/updateSession', {
+            "userId": userId,
+            "applicationAddress": "http://localhost:" + str(port),
+            "status": "off"
+        })
+        print("Error occured")
+        return
 
 
 if __name__ == '__main__':
     # run main function to start the app
     try:
         Thread(target=main).start()
-        Thread(target=runServer(port=5001)).start()
+        Thread(target=runServer(port=port)).start()
     except:
-        print("Injection found! App is exiting!!!")
+        print("App exiting")
