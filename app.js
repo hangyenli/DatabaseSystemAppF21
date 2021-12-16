@@ -36,7 +36,29 @@ app.get('/getUserStrategy/:userId', async (req, res) => {
                                where userId = $1`
             const result = await client.query(queryText, [id])
             await client.query('COMMIT')
-            res.send(result.rows ? result.rows : null)
+            res.send(result.rows ? result.rows[0] : null)
+        } catch (e) {
+            await client.query('ROLLBACK')
+            throw e
+        } finally {
+            client.release()
+        }
+    })().catch(e => res.send(e))
+})
+
+app.post('/updateUserStrategy/:userId/:strategy', async (req, res) => {
+    const id = req.params.userId;
+    const strategy = req.params.strategy;
+    (async () => {
+        const client = await pool.connect()
+        try {
+            await client.query('BEGIN')
+            const queryText = `update userStrategy set strategyName = $1
+                               where userId = $2`
+            await client.query(queryText, [strategy,id])
+
+            await client.query('COMMIT')
+            res.send({status: "ok"})
         } catch (e) {
             await client.query('ROLLBACK')
             throw e
@@ -58,7 +80,7 @@ app.post('/registerUser/:userId', async (req, res) => {
             await client.query(q1, [id])
             let q2 = `insert into userStrategy
                       values ($1, $2)`
-            await client.query(q2, [id, '71e56d8e-f665-40ca-b812-3b820dd671cb'])
+            await client.query(q2, [id, 'fcfs'])
             await client.query('COMMIT')
             res.send(id + ' registered successfully and default strategy set as fcfs')
         } catch (e) {
@@ -70,27 +92,33 @@ app.post('/registerUser/:userId', async (req, res) => {
     })().catch(e => res.send(e))
 })
 
-app.post('/updateSession',async (req,res)=>{
+app.post('/updateSession', async (req, res) => {
     const rb = req.body;
     (async () => {
         const client = await pool.connect()
         try {
             await client.query('BEGIN')
             let query = `select *
-                               from session
-                               where userId = $1 and applicationAddress=$2`
-            let result = await client.query(query, [rb.userId,rb.applicationAddress])
-                            console.log(result);
-            if (result.rowCount == 0){
+                         from session
+                         where userId = $1
+                           and applicationAddress = $2`
+            let result = await client.query(query, [rb.userId, rb.applicationAddress])
+            console.log(result);
+            if (result.rowCount == 0) {
                 console.log('sss')
-                query = `insert into userApplicationAddress values ($1,$2)`
-                result = await client.query(query, [rb.userId,rb.applicationAddress])
-                query = `insert into session values ($1,$2,$3)`
-                result = await client.query(query, [rb.userId,rb.applicationAddress,'on'])
+                query = `insert into userApplicationAddress
+                         values ($1, $2)`
+                result = await client.query(query, [rb.userId, rb.applicationAddress])
+                query = `insert into session
+                         values ($1, $2, $3)`
+                result = await client.query(query, [rb.userId, rb.applicationAddress, 'on'])
                 console.log(result);
-            }else{
-                query = `update session set status = $3 where userId = $1 and applicationAddress = $2`
-                await client.query(query, [rb.userId,rb.applicationAddress, rb.status])
+            } else {
+                query = `update session
+                         set status = $3
+                         where userId = $1
+                           and applicationAddress = $2`
+                await client.query(query, [rb.userId, rb.applicationAddress, rb.status])
             }
             await client.query('COMMIT')
             res.send(id + ' successfully added session')

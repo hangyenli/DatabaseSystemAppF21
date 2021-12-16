@@ -37,9 +37,6 @@ class Database():
                                                            accessedColumn VARCHAR(255), \
                             FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE );")
 
-            cursor.execute("INSERT INTO users VALUES ('admin')")
-            cursor.execute("INSERT INTO users VALUES ('tester')")
-
             self.conn.commit()
 
     # authenticate a user login

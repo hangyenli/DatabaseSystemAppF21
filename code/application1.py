@@ -153,10 +153,27 @@ def process_request(command, userId):
             print(str(counter) + ". " + access[1] + '\t\t' + access[2])
             counter += 1
         print('---------------------')
-    # elif command == "6":
-    #     ret = get(3000,'/')
-    #     print(ret.status_code)
-    #     print(ret.json())
+    elif command == "6":
+        # retrieve strategy
+        userStrategyRet = get(master, '/getUserStrategy/' + userId)
+        strategy = userStrategyRet.json()
+        strategy = strategy['strategyname']
+        print('current sync strategy is ' + strategy)
+        print('to change the sync strategy to fcfs enter 1')
+        print('to change the sync strategy to lcfs enter 2')
+
+        option = input()
+
+        if option == '1':
+            # update user strategy
+            post(master, '/updateUserStrategy/' + userId + '/fcfs', {})
+            print('current sync strategy is set to fcfs')
+        elif option == '2':
+            post(master, '/updateUserStrategy/' + userId + '/lcfs', {})
+            print('current sync strategy is set to lcfs')
+        else:
+            print('no changed is made')
+
 
 
 # replace any ; with injection found to create an error when executing the sql command
@@ -171,7 +188,7 @@ def main():
     try:
         # initiate the data base
         DB = Database()
-        # DB.initApp()
+        DB.initApp()
         print("Welcome!")
 
         # ask user to enter userID
@@ -204,7 +221,7 @@ def main():
             print("\t3. View Saved Notes")
             print("\t4. View and Reran History Query")
             print("\t5. View Data Accessed")
-            print("\t6. test")
+            print("\t6. Sync Option")
             print("\t7. Quit")
 
             # ask for user command
@@ -241,9 +258,3 @@ if __name__ == '__main__':
         Thread(target=runServer(port=port)).start()
     except:
         print("App exiting")
-        # delete app session
-        post(master, '/updateSession', {
-            "userId": userId,
-            "applicationAddress": "http://localhost:" + str(port),
-            "status": "off"
-        })

@@ -1,35 +1,27 @@
 create table strategy
 (
-    id   VARCHAR(36) PRIMARY KEY,
-    name varchar(20)
+    name varchar(20) primary key
 );
 INSERT INTO strategy
-VALUES ('71e56d8e-f665-40ca-b812-3b820dd671cb', 'fcfs');
+VALUES ('fcfs');
 INSERT INTO strategy
-VALUES ('4a1cacb0-8c0f-48ca-b301-26e7c3f939cf', 'lcfs');
+VALUES ('lcfs');
 
 CREATE TABLE users
 (
     id VARCHAR(36) PRIMARY KEY
 );
-INSERT INTO users
-VALUES ('alice');
-INSERT INTO users
-VALUES ('bob');
+
 
 create table userStrategy
 (
     userId     varchar(36),
-    strategyId varchar(36),
-    primary key (userId, strategyId),
+    strategyName varchar(36),
+    primary key (userId, strategyName),
     foreign key (userId) references users (id),
-    foreign key (strategyId) references strategy (id)
+    foreign key (strategyName) references strategy (name)
 );
 
-INSERT INTO userStrategy
-VALUES ('alice', '71e56d8e-f665-40ca-b812-3b820dd671cb');
-INSERT INTO userStrategy
-VALUES ('bob', '71e56d8e-f665-40ca-b812-3b820dd671cb');
 
 
 create table userApplicationAddress
