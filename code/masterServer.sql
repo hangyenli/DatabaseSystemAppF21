@@ -40,6 +40,17 @@ create table userApplicationAddress
     foreign key (userId) references users (id)
 );
 
+create table session(
+    userId             varchar(36),
+    applicationAddress varchar(36),
+        status  varchar(5),
+
+    primary key (userId, applicationAddress),
+    foreign key (userId, applicationAddress) references userApplicationAddress (userId, applicationAddress)
+
+
+
+)
 
 create table taskQueue
 (

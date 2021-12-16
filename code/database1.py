@@ -52,6 +52,12 @@ class Database():
             else:
                 return True
 
+    # register a user login
+    def addUser(self, userId):
+        with self.conn.cursor() as cursor:
+            cursor.execute("insert into users values (%s)", (userId,))
+            self.conn.commit()
+
     # create a query history for user, so he can review it later
     def addUserQuery(self, userId, query):
         with self.conn.cursor() as cursor:
