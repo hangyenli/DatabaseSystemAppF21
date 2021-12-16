@@ -40,6 +40,9 @@ You also need to have a MongoDB server running in the localhost at port `27017`
 To setup the environment, run the following commands in your terminal:
 
 ```
+psql -U postgres postgres < code/masterSetup.sql
+psql -U master_admin master_database < code/masterServer.sql
+
 psql -U postgres postgres < code/setup.sql
 psql -U app_admin app_database < code/schema.sql
 psql -U app_admin app_database2 < code/schema.sql

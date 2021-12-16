@@ -1,5 +1,7 @@
 import sys
 from database1 import Database
+from server import runServer
+from threading import Thread
 
 address = 'address1'
 
@@ -197,6 +199,7 @@ def main():
 if __name__ == '__main__':
     # run main function to start the app
     try:
-        main()
+        Thread(target=main).start()
+        Thread(target=runServer(port=5000)).start()
     except:
         print("Injection found! App is exiting!!!")
