@@ -1,5 +1,5 @@
 import sys
-from database import Database
+from database2 import Database
 
 address = 'address2'
 

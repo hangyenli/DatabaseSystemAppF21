@@ -42,13 +42,15 @@ To setup the environment, run the following commands in your terminal:
 ```
 psql -U postgres postgres < code/setup.sql
 psql -U app_admin app_database < code/schema.sql
+psql -U app_admin app_database2 < code/schema.sql
 ```
 
 ## Load Data
 
 To load the dataset, run the following commands in your terminal:
 ```
-python3 code/load_data.py
+python3 code/load_data1.py
+python3 code/load_data2.py
 ```
 
 ### Notice
