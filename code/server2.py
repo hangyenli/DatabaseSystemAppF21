@@ -177,6 +177,21 @@ class Database():
             self.addUserDataAccessed(userId, [('userQuery', 'userId'), ('userQuery', 'query')])
             return cursor.fetchall()
 
+
+    # function to retrieve all local changes
+    def fetchLocalTask(self):
+        with self.conn.cursor() as cursor:
+            query = "SELECT * FROM localtaskqueue"
+            cursor.execute(query)
+            return cursor.fetchall()
+
+
+    def turncate(self, table):
+        with self.conn.cursor() as cursor:
+            query = "truncate table " + table
+            cursor.execute(query)
+            self.conn.commit()
+
     # function to retrieve all user history for data access
     def fetchDataAccessed(self, userId):
         with self.conn.cursor() as cursor:

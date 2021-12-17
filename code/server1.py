@@ -5,11 +5,7 @@ import psycopg2
 import uuid
 from pymongo import MongoClient
 
-
-
 app = Flask(__name__)  # Flask constructor
-
-
 
 master = 3000
 port = 5000
@@ -41,14 +37,13 @@ def runServer(port):
 
 
 def post(port, route, json):
-    r = requests.post('http://localhost:'+str(port)+route, json=json)
+    r = requests.post('http://localhost:' + str(port) + route, json=json)
     return r
 
 
 def get(port, route):
-    r = requests.get('http://localhost:'+str(port)+route)
+    r = requests.get('http://localhost:' + str(port) + route)
     return r
-
 
 
 def getSession(userId):
@@ -56,8 +51,6 @@ def getSession(userId):
     r = get(master, route)
     result = r.json()
     return result['status']
-
-
 
 
 class Database():
@@ -73,7 +66,6 @@ class Database():
     # drop the tables for application data, such as user note
     def initApp(self):
         with self.conn.cursor() as cursor:
-
             cursor.execute("DROP TABLE IF EXISTS localTaskQueue;")
             cursor.execute("DROP TABLE IF EXISTS userNote;")
             cursor.execute("DROP TABLE IF EXISTS userQuery;")
@@ -94,8 +86,8 @@ class Database():
                                                            accessedTable VARCHAR(255), \
                                                            accessedColumn VARCHAR(255), \
                             FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE );")
-            cursor.execute("create table localTaskQueue ( userId             varchar(36), query              varchar(512), timestamp          timestamp default CURRENT_TIMESTAMP,foreign key (userId) references users(id));")
-
+            cursor.execute(
+                "create table localTaskQueue ( userId             varchar(36), query              varchar(512), timestamp          timestamp default CURRENT_TIMESTAMP,foreign key (userId) references users(id));")
 
             self.conn.commit()
 
@@ -150,7 +142,6 @@ class Database():
 
             self.conn.commit()
 
-
     # create a user note in the application to help user remember things
     def createNote(self, userId, note):
         with self.conn.cursor() as cursor:
@@ -166,6 +157,19 @@ class Database():
             cursor.execute("SELECT * FROM userNote WHERE userId = %s", (userId,))
             self.addUserQuery(userId, query)
 
+            return cursor.fetchall()
+
+    def turncate(self, table):
+        with self.conn.cursor() as cursor:
+            query = "truncate table " + table
+            cursor.execute(query)
+            self.conn.commit()
+
+    # function to retrieve all local changes
+    def fetchLocalTask(self):
+        with self.conn.cursor() as cursor:
+            query = "SELECT * FROM localtaskqueue"
+            cursor.execute(query)
             return cursor.fetchall()
 
     # function to retrieve all user history queries
@@ -208,11 +212,10 @@ class Database():
             self.conn.commit()
             return cursor.fetchall()
 
-    def run(self,query):
+    def run(self, query):
         with self.conn.cursor() as cursor:
             cursor.execute(query)
             self.conn.commit()
-
 
     def addTask(self, userId, query):
         #     check if session is on

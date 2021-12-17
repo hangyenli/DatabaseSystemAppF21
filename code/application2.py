@@ -271,7 +271,14 @@ def main():
                     "status": "on"
                 })
                 print('Session has now been turned on')
+                # pull changes
                 pull(master, userId, port, DB)
+                # upload local changes
+                #     retrieve all local changes and delete
+                taskToUpload = DB.fetchLocalTask()
+                for task in taskToUpload:
+                    addTask(userId, task[1])
+                DB.turncate('localtaskqueue')
             # delete the session
             if command == "8":
                 post(master, '/updateSession', {
