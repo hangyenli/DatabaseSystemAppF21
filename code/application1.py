@@ -103,6 +103,20 @@ def addTask(userId, query):
         db.saveTask(userId, query)
 
 
+def pull(master, userId, port, DB):
+    # pull changes
+    r = get(master, '/getTask/' + userId + '/' + str(port))
+    result = r.json()
+
+    ids = []
+    for task in result:
+        DB.run(task['query'])
+        ids.append(task['id'])
+    print(ids)
+
+    post(master, '/deleteTask', {"ids": ids})
+
+
 def process_request(command, userId):
     # initiate database connection
     DB = Database()
@@ -232,17 +246,7 @@ def main():
             "status": "on"
         })
 
-        # pull changes
-        r = get(master, '/getTask/' + userId + '/' + str(port))
-        result = r.json()
-
-        ids = []
-        for task in result:
-            DB.run(task['query'])
-            ids.append(task['id'])
-        print(ids)
-
-        post(master, '/deleteTask', {"ids": ids})
+        pull(master, userId, port, DB)
 
         # main loop
         while (1):
@@ -267,6 +271,7 @@ def main():
                     "status": "on"
                 })
                 print('Session has now been turned on')
+                pull(master, userId, port, DB)
             # delete the session
             if command == "8":
                 post(master, '/updateSession', {
@@ -275,6 +280,7 @@ def main():
                     "status": "off"
                 })
                 print('Session has now been turned off')
+
             else:
                 # otherwise process the command
                 process_request(command, userId)

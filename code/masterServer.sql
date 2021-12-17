@@ -42,7 +42,7 @@ create table session(
 
 
 
-)
+);
 
 create table taskQueue
 (
