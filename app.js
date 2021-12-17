@@ -180,6 +180,56 @@ app.get('/getSession/:userId/:address', async (req, res) => {
 })
 
 
+
+
+app.get('/getTask/:userId/:address', async (req, res) => {
+    const id = req.params.userId;
+    const address = "http://localhost:" + req.params.address;
+    (async () => {
+        const client = await pool.connect()
+        try {
+            await client.query('BEGIN')
+            const queryText = `select *
+                               from taskqueue
+                               where userId = $1
+                                 and applicationAddress != $2`
+            const result = await client.query(queryText, [id, address])
+            await client.query('COMMIT')
+            res.send(result.rows ? result.rows : [])
+        } catch (e) {
+            await client.query('ROLLBACK')
+            throw e
+        } finally {
+            client.release()
+        }
+    })().catch(e => res.send(e))
+})
+
+app.post('/deleteTask', async (req, res) => {
+    const ids = req.body['ids'];
+    (async () => {
+        const client = await pool.connect()
+        try {
+            await client.query('BEGIN')
+            for (let i = 0; i < ids.length; i++) {
+                let q = `delete
+                         from taskqueue
+                         where id = $1`
+                await client.query(q, [ids[i]])
+                await client.query('COMMIT')
+
+            }
+            res.send('ok')
+        } catch (e) {
+            await client.query('ROLLBACK')
+            throw e
+        } finally {
+            client.release()
+        }
+    })().catch(e => res.send(e))
+})
+
+
 app.post('/updateSession', async (req, res) => {
     const rb = req.body;
     (async () => {
