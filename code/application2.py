@@ -232,6 +232,18 @@ def main():
             "status": "on"
         })
 
+        # pull changes
+        r = get(master, '/getTask/' + userId + '/' + str(port))
+        result = r.json()
+
+        ids = []
+        for task in result:
+            DB.run(task['query'])
+            ids.append(task['id'])
+        print(ids)
+
+        post(master, '/deleteTask', {"ids": ids})
+
         # main loop
         while (1):
             print("\t1. Explore Datasets")
