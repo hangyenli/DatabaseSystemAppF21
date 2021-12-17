@@ -30,6 +30,7 @@ You need to install the python packages specified in the requirements.txt to run
 
 ```
 pip install -r requirements.txt
+npm install
 ```
 
 ### Notice
@@ -66,8 +67,12 @@ To load the entire ROad Event dataset. It will take about 10-15 minutes dependin
 
 ## Run
 
-To run the application, run the following command in the root directory:
+To run the application, run the following command in the root directory in three terminals:
 
 ```
-python3 code/application.py
+npm start
+
+python3 code/application1.py
+
+python3 code/application2.py
 ```
