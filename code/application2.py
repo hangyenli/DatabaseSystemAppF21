@@ -259,7 +259,7 @@ def main():
             print("\t8. Turn off session")
 
             # ask for user command
-            command = input("Please make a choice (1-6): ")
+            command = input("Please make a choice (1-8): ")
             command = sanitize(command)
 
             # open the session

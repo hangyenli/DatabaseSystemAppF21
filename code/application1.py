@@ -130,7 +130,7 @@ def process_request(command, userId):
         print("\t6. Quit")
 
         # ask for user input
-        option = input("Please make a choice (1-6): ")
+        option = input("Please make a choice (1-8): ")
         option = sanitize(option)
         # quit program if user wishes to do so
         if option == '6':
