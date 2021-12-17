@@ -12,7 +12,7 @@ def hello():
     return 'HELLO'
 
 
-@app.route('/test', methods=['POST'])
+@app.route('/run', methods=['POST'])
 def test():
     # handle the POST request
     if request.method == 'POST':

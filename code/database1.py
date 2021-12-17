@@ -1,9 +1,21 @@
 import sys
 import psycopg2
 import uuid
+from server import runServer, post, get
+
 from pymongo import MongoClient
 
-master =3000
+master = 3000
+port = 5000
+
+def getSession(userId):
+    route = '/getSession/' + userId + '/' + str(port)
+    r = get(master, route)
+    result = r.json()
+    return result['status']
+
+
+
 
 class Database():
     # init the connection for postgres and mongoDB
@@ -18,6 +30,8 @@ class Database():
     # drop the tables for application data, such as user note
     def initApp(self):
         with self.conn.cursor() as cursor:
+
+            cursor.execute("DROP TABLE IF EXISTS localTaskQueue;")
             cursor.execute("DROP TABLE IF EXISTS userNote;")
             cursor.execute("DROP TABLE IF EXISTS userQuery;")
             cursor.execute("DROP TABLE IF EXISTS userAccessedData;")
@@ -37,6 +51,8 @@ class Database():
                                                            accessedTable VARCHAR(255), \
                                                            accessedColumn VARCHAR(255), \
                             FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE );")
+            cursor.execute("create table localTaskQueue ( userId             varchar(36), query              varchar(512), timestamp          timestamp default CURRENT_TIMESTAMP,foreign key (userId) references users(id));")
+
 
             self.conn.commit()
 
@@ -59,23 +75,43 @@ class Database():
     # create a query history for user, so he can review it later
     def addUserQuery(self, userId, query):
         with self.conn.cursor() as cursor:
-            cursor.execute("INSERT INTO userQuery VALUES (%s, %s, %s)",
-                           (str(uuid.uuid4()), userId, query))
+            status = getSession(userId)
+            query = query.replace("'", "''")
+            q = "INSERT INTO userQuery VALUES ('%s', '%s', '%s')" % (str(uuid.uuid4()), userId, query)
+            cursor.execute(q)
+            if status == 'on':
+                #         push to master directly
+                post(master, '/addTask', {"query": q, "userId": userId, "address": str(port)})
+            else:
+                # save it locally
+                db = Database()
+                db.saveTask(userId, query)
             self.addUserDataAccessed(userId, [('userQuery', 'query'), ('userQuery', 'userId')])
             self.conn.commit()
 
     # track what table and columns are accessed by user while using the app
     def addUserDataAccessed(self, userId, col_accessed):
         with self.conn.cursor() as cursor:
+            status = getSession(userId)
+
             for col in col_accessed:
-                cursor.execute("INSERT INTO userAccessedData VALUES (%s, %s, %s, %s)",
-                               (str(uuid.uuid4()), userId, col[0], col[1]))
+                uid = str(uuid.uuid4())
+                query = "INSERT INTO userAccessedData VALUES ('%s', '%s', '%s', '%s')" % (uid, userId, col[0], col[1])
+                cursor.execute(query)
+                if status == 'on':
+                    #         push to master directly
+                    post(master, '/addTask', {"query": query, "userId": userId, "address": str(port)})
+                else:
+                    # save it locally
+                    self.saveTask(userId, query)
+
             self.conn.commit()
+
 
     # create a user note in the application to help user remember things
     def createNote(self, userId, note):
         with self.conn.cursor() as cursor:
-            query = "INSERT INTO userNote VALUES ('%s', '%s', '%s')" % (str(uuid.uuid4()),userId, note)
+            query = "INSERT INTO userNote VALUES ('%s', '%s', '%s')" % (str(uuid.uuid4()), userId, note)
             cursor.execute(query)
             self.conn.commit()
             return query
@@ -111,6 +147,13 @@ class Database():
                                               ('userAccessedData', 'accessedColumn')])
             return cursor.fetchall()
 
+    def saveTask(self, userId, query):
+        with self.conn.cursor() as cursor:
+            cursor.execute("INSERT INTO localTaskQueue VALUES (%s, %s)",
+                           (userId, query))
+            self.conn.commit()
+            return
+
     # function to execute a query in postgres
     def runQuery(self, userId, query, col_accessed):
         with self.conn.cursor() as cursor:
@@ -121,6 +164,17 @@ class Database():
             self.addUserDataAccessed(userId, col_accessed)
             self.conn.commit()
             return cursor.fetchall()
+
+    def addTask(self, userId, query):
+        #     check if session is on
+        status = getSession(userId)
+
+        if status == 'on':
+            #         push to master directly
+            post(master, '/addTask', {"query": query, "userId": userId, "address": str(port)})
+        else:
+            # save it locally
+            self.saveTask(userId, query)
 
     # generate a report on hate crime activities
     def getHateCrimeSummary(self):

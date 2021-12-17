@@ -69,3 +69,11 @@ CREATE TABLE event
     FOREIGN KEY (eventLocationId) REFERENCES eventLocation (id) on delete cascade,
     FOREIGN KEY (eventFacilityId) REFERENCES eventFacility (id) on delete cascade
 );
+create table localTaskQueue
+(
+    userId             varchar(36),
+    query              varchar(512),
+    timestamp          timestamp
+        default CURRENT_TIMESTAMP,
+        foreign key (userId) references users(id)
+);

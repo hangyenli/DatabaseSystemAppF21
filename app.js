@@ -3,6 +3,8 @@ const {Pool} = require("pg");
 const {v4: uuidv4} = require('uuid');
 const app = express()
 const port = 3000
+const https = require('https')
+
 
 app.use(express.json())    // <==== parse request body as JSON
 
@@ -112,9 +114,13 @@ app.post('/addTask', async (req, res) => {
             const task = req.body.query;
             const userId = req.body.userId;
             const address = "http://localhost:" + req.body.address;
+            console.log(task);
             const queryText = `insert into taskQueue values ($1,$2,$3,$4)`
             await client.query(queryText,[uid,userId,address,task])
             await client.query('COMMIT')
+
+            //if there are nodes on, then perform changes depending on strategy
+
 
             res.send({status: 'ok'})
         } catch (e) {

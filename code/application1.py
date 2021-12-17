@@ -48,7 +48,7 @@ def answer_question(userId, option, db):
         print("The average length of the event in " + state + " is around " + str(result[0][1]) + 'day(s)')
     elif option == "2":
         # What is the total number of each type of events in YEAR?
-        query = "SELECT type as \"Event type\", extract(year from createtime) as year, count(*) " \
+        query = "SELECT type as Event_type, extract(year from createtime) as year, count(*) " \
                 "from event " \
                 "join eventfacility e on e.id = event.eventfacilityid " \
                 "group by type, extract(year from createtime) having count(*) > 1000 " \
@@ -84,11 +84,13 @@ def answer_question(userId, option, db):
         result = db.runQuery(userId, query, [('event', 'createtime'), ('event', 'organization')])
         print_tuple_2(['Organization, Count'], result)
 
+
 def getSession(userId):
     route = '/getSession/' + userId + '/' + str(port)
     r = get(master, route)
     result = r.json()
     return result['status']
+
 
 def addTask(userId, query):
     #     check if session is on
@@ -96,11 +98,11 @@ def addTask(userId, query):
 
     if status == 'on':
         #         push to master directly
-        print('here')
         post(master, '/addTask', {"query": query, "userId": userId, "address": str(port)})
     else:
-        pass
-#         push to local first
+        # save it locally
+        db = Database()
+        db.saveTask(userId, query)
 
 
 def process_request(command, userId):
@@ -206,7 +208,7 @@ def main():
     try:
         # initiate the data base
         DB = Database()
-        # DB.initApp()
+        DB.initApp()
         print("Welcome!")
 
         # ask user to enter userID
@@ -267,12 +269,6 @@ def main():
                 # otherwise process the command
                 process_request(command, userId)
     except:
-        # delete app session
-        post(master, '/updateSession', {
-            "userId": userId,
-            "applicationAddress": "http://localhost:" + str(port),
-            "status": "off"
-        })
         print("Error occured")
         return
 
