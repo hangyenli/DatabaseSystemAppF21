@@ -162,7 +162,7 @@ class Database():
     # function to retrieve all user notes
     def fetchNote(self, userId):
         with self.conn.cursor() as cursor:
-            query = "SELECT * FROM userNote WHERE userId = '%s'" % (userId,)
+            query = "SELECT * FROM userNote WHERE userId =  $$%s$$" % (userId,)
             cursor.execute("SELECT * FROM userNote WHERE userId = %s", (userId,))
             self.addUserQuery(userId, query)
 
