@@ -1,9 +1,7 @@
 import sys
-from database1 import Database
-from server import runServer, post, get
+from server1 import runServer, post, get, Database
 from threading import Thread
 
-address = 'address1'
 master = 3000
 port = 5000
 
@@ -79,7 +77,7 @@ def answer_question(userId, option, db):
         year = sanitize(year)
         query = "SELECT organization, COUNT(*) FROM event " \
                 "WHERE EXTRACT(year FROM createTime) = " + year + \
-                "GROUP BY organization " \
+                " GROUP BY organization " \
                 "order by count(*) desc limit 10;"
         result = db.runQuery(userId, query, [('event', 'createtime'), ('event', 'organization')])
         print_tuple_2(['Organization, Count'], result)

@@ -1,12 +1,55 @@
-import sys
+# an object of WSGI application
+from flask import Flask, redirect, url_for, request, jsonify
+import requests
 import psycopg2
 import uuid
-from server import runServer, post, get
-
 from pymongo import MongoClient
 
+
+
+app = Flask(__name__)  # Flask constructor
+
+
+
 master = 3000
-port = 5000
+port = 5001
+
+
+# A decorator used to tell the application
+# which URL is associated function
+@app.route('/')
+def hello():
+    return 'HELLO'
+
+
+@app.route('/run', methods=['POST'])
+def test():
+    # handle the POST request
+    if request.method == 'POST':
+        content = request.json
+        # execute todo
+
+        content['todo']
+        content['userId']
+        db = Database()
+        db.run(content['todo'])
+        return "ok"
+
+
+def runServer(port):
+    app.run(port=port)
+
+
+def post(port, route, json):
+    r = requests.post('http://localhost:'+str(port)+route, json=json)
+    return r
+
+
+def get(port, route):
+    r = requests.get('http://localhost:'+str(port)+route)
+    return r
+
+
 
 def getSession(userId):
     route = '/getSession/' + userId + '/' + str(port)
@@ -20,8 +63,8 @@ def getSession(userId):
 class Database():
     # init the connection for postgres and mongoDB
     def __init__(self):
-        connection_string = "host='localhost' dbname='app_database' \
-                             user='app_admin' password='admin_password'"
+        connection_string = "host='localhost' dbname='app_database2' \
+                             user='app_admin2' password='admin_password2'"
         self.conn = psycopg2.connect(connection_string)
         client = MongoClient("mongodb://localhost:27017")
         mongo_db = client["app_database"]
@@ -164,6 +207,12 @@ class Database():
             self.addUserDataAccessed(userId, col_accessed)
             self.conn.commit()
             return cursor.fetchall()
+
+    def run(self,query):
+        with self.conn.cursor() as cursor:
+            cursor.execute(query)
+            self.conn.commit()
+
 
     def addTask(self, userId, query):
         #     check if session is on

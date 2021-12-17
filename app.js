@@ -3,7 +3,7 @@ const {Pool} = require("pg");
 const {v4: uuidv4} = require('uuid');
 const app = express()
 const port = 3000
-const https = require('https')
+const axios = require('axios')
 
 
 app.use(express.json())    // <==== parse request body as JSON
@@ -22,8 +22,6 @@ app.get('/', async (req, res) => {
     res.send({status: 'ok'})
 })
 app.post('/test', async (req, res) => {
-    console.log("post")
-    console.log(req.body)
     res.send(req.body)
 })
 
@@ -114,14 +112,40 @@ app.post('/addTask', async (req, res) => {
             const task = req.body.query;
             const userId = req.body.userId;
             const address = "http://localhost:" + req.body.address;
-            console.log(task);
-            const queryText = `insert into taskQueue values ($1,$2,$3,$4)`
-            await client.query(queryText,[uid,userId,address,task])
-            await client.query('COMMIT')
-
+            const queryText = `insert into taskQueue
+                               values ($1, $2, $3, $4)`
+            await client.query(queryText, [uid, userId, address, task])
             //if there are nodes on, then perform changes depending on strategy
+            let result = await client.query(`select *
+                                             from session
+                                             where userId = $1
+                                               and applicationAddress != $2
+                                               and status = 'on'`, [userId, address])
+            const sessions = result.rows;
+            if (sessions.length === 0) {
+                await client.query('COMMIT')
+            } else {
+                result = await client.query(`select *
+                                             from userStrategy
+                                             where userId = $1`, [userId])
+                const strategy = result.rows[0].strategyname;
+                for (let i = 0; i < sessions.length; i++) {
+                    //    send to each server and force execute
+                    axios
+                        .post(sessions[i].applicationaddress + '/run', {
+                            todo: task,
+                            userId: userId
+                        })
+                        .then(res => {
+                            console.log(`statusCode: ${res.status}`)
+                        })
+                        .catch(error => {
+                            console.error(error)
+                        })
+                }
+                await client.query('ROLLBACK')
 
-
+            }
             res.send({status: 'ok'})
         } catch (e) {
             await client.query('ROLLBACK')
