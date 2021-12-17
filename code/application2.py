@@ -112,7 +112,6 @@ def pull(master, userId, port, DB):
     for task in result:
         DB.run(task['query'])
         ids.append(task['id'])
-    print(ids)
 
     post(master, '/deleteTask', {"ids": ids})
 
