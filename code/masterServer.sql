@@ -39,9 +39,6 @@ create table session(
 
     primary key (userId, applicationAddress),
     foreign key (userId, applicationAddress) references userApplicationAddress (userId, applicationAddress)
-
-
-
 );
 
 create table taskQueue
